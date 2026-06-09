@@ -42,6 +42,44 @@ Edit `config.json` to set the site name, logo, footer, social links, and optiona
 
 Status plugins are configured under `status.plugin` — built-in options are `mock`, `tcp-check`, and `http`.
 
+### Background theme
+
+Set `theme.background.type` to `gradient`, `solid`, or `image`:
+
+```json
+"theme": {
+  "background": {
+    "type": "gradient",
+    "gradientStart": "#35B2F5",
+    "gradientEnd": "#FFFFFF"
+  }
+}
+```
+
+```json
+"theme": {
+  "background": {
+    "type": "solid",
+    "color": "#35B2F5"
+  }
+}
+```
+
+```json
+"theme": {
+  "background": {
+    "type": "image",
+    "image": "/img/my-background.jpg",
+    "color": "#35B2F5",
+    "size": "cover",
+    "position": "center center",
+    "repeat": "no-repeat"
+  }
+}
+```
+
+`color` is used as the fallback/base for gradients and images. Image paths can be relative to `public/` (e.g. `img/foo.jpg`).
+
 ## Writing content
 
 **Posts** (`posts/*.md`) use frontmatter:

@@ -12,6 +12,13 @@
   "posts": {
     "pageTitle": "News"
   },
+  "theme": {
+    "background": {
+      "type": "gradient",
+      "gradientStart": "#35B2F5",
+      "gradientEnd": "#FFFFFF"
+    }
+  },
   "links": {
     "github": "",
     "discord": ""

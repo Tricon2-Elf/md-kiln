@@ -8,7 +8,6 @@
 
 :root {
   --bg-fallback: #35b2f5;
-  --bg-gradient-end: #ffffff;
   --bg-card: rgba(255, 255, 255, 0.82);
   --bg-card-hover: rgba(255, 255, 255, 0.95);
   --accent-blue: #1a6bb5;
@@ -38,8 +37,11 @@ body {
   flex-direction: column;
   font-family: var(--font-body);
   color: var(--text-primary);
-  background-color: var(--bg-fallback);
-  background-image: linear-gradient(to bottom, var(--bg-fallback), var(--bg-gradient-end));
+  background-color: var(--page-bg-color, var(--bg-fallback));
+  background-image: var(--page-bg-image, linear-gradient(to bottom, #35b2f5, #ffffff));
+  background-repeat: var(--page-bg-repeat, no-repeat);
+  background-position: var(--page-bg-position, center center);
+  background-size: var(--page-bg-size, auto);
   background-attachment: fixed;
   line-height: 1.6;
   overflow-x: hidden;

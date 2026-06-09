@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
+  <style>
+    :root {
+      --page-bg-color: <%= theme.backgroundColor %>;
+      --page-bg-image: <%= theme.backgroundImage %>;
+      --page-bg-repeat: <%= theme.backgroundRepeat %>;
+      --page-bg-position: <%= theme.backgroundPosition %>;
+      --page-bg-size: <%= theme.backgroundSize %>;
+    }
+  </style>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
