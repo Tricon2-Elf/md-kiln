@@ -11,7 +11,13 @@
     "subtitle": "Recent updates and announcements"
   },
   "posts": {
-    "pageTitle": "News"
+    "pageTitle": "News",
+    "defaultTag": "news",
+    "tags": {
+      "news": { "label": "News", "color": "seagreen" },
+      "guide": { "label": "Guide", "color": "blueviolet" },
+      "update": { "label": "Update", "color": "seagreen" }
+    }
   },
   "theme": {
     "background": {

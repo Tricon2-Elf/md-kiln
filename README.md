@@ -119,9 +119,24 @@ Set `theme.background.type` to `gradient`, `solid`, or `image`:
 ---
 title: My Post
 date: 2026-05-10
-tag: News
+tag: news
 excerpt: A short summary for the home page.
 ---
+
+`tag` must be a key from `posts.tags` in `config.json`:
+
+```json
+"posts": {
+  "defaultTag": "news",
+  "tags": {
+    "news": { "label": "News", "color": "slategray" },
+    "guide": { "label": "Guide", "color": "steelblue" },
+    "update": { "label": "Update", "color": "seagreen" }
+  }
+}
+```
+
+`color` is any [CSS named color](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/named-color) (e.g. `blue`, `coral`, `rebeccapurple`). The tag pill uses a lighter background and darker border derived from that color automatically.
 
 Post body in **markdown**.
 ```

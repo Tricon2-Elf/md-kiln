@@ -202,6 +202,7 @@ body {
 }
 
 .blog-card__tag {
+  --tag-color: steelblue;
   font-family: var(--font-display);
   font-size: 0.7rem;
   font-weight: 700;
@@ -209,9 +210,9 @@ body {
   letter-spacing: 0.06em;
   padding: 0.2rem 0.65rem;
   border-radius: 999px;
-  background: rgba(43, 127, 212, 0.1);
-  color: var(--accent-blue);
-  border: 1px solid rgba(43, 127, 212, 0.25);
+  color: var(--tag-color);
+  background: color-mix(in srgb, var(--tag-color) 30%, white);
+  border: 1px solid var(--tag-color);
 }
 
 .blog-card__date {

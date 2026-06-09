@@ -5,7 +5,7 @@
   <div class="article__body">
     <% if (typeof showMeta !== 'undefined' && showMeta) { %>
       <div class="article__meta">
-        <span class="blog-card__tag"><%= article.tag %></span>
+        <span class="blog-card__tag" style="--tag-color: <%= article.tagColor %>"><%= article.tag %></span>
         <time class="blog-card__date"><%= formatDate(article.date) %></time>
       </div>
     <% } %>

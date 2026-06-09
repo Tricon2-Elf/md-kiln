@@ -4,7 +4,7 @@
   <% } %>
   <div class="blog-card__body">
     <div class="blog-card__meta">
-      <span class="blog-card__tag"><%= post.tag %></span>
+      <span class="blog-card__tag" style="--tag-color: <%= post.tagColor %>"><%= post.tag %></span>
       <time class="blog-card__date"><%= formatDate(post.date) %></time>
     </div>
     <h2 class="blog-card__title"><%= post.title %></h2>
