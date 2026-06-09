@@ -8,6 +8,7 @@ services:
       - ./content:/app/content
       - ./posts:/app/posts
       - dist:/app/dist
+      - ./public:/app/public
     environment:
       API_ONLY: "true"
       CONFIG_PATH: /app/config.json

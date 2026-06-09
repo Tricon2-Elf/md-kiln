@@ -3,17 +3,14 @@
     <img src="<%= config.site.logo %>" alt="<%= config.site.name %>" class="navbar__logo">
   </a>
   <nav class="navbar__links">
-    <a href="/" class="navbar__link<%= active === 'home' ? ' navbar__link--active' : '' %>">Home</a>
-    <% if (config.links.github?.trim()) { %>
-      <a href="<%= config.links.github %>" target="_blank" rel="noopener noreferrer" class="navbar__link navbar__link--icon" aria-label="Github">
-        <img src="/img/github.svg" alt="" class="navbar__icon">
-      </a>
-    <% } %>
-    <% if (config.links.discord?.trim()) { %>
-      <a href="<%= config.links.discord %>" target="_blank" rel="noopener noreferrer" class="navbar__link navbar__link--icon" aria-label="Discord">
-        <img src="/img/discord.svg" alt="" class="navbar__icon">
-      </a>
-    <% } %>
-    <a href="/about" class="navbar__link<%= active === 'about' ? ' navbar__link--active' : '' %>">About</a>
+    <% navLinks.forEach(function(link) { %>
+      <% if (link.type === 'text') { %>
+        <a href="<%= link.href %>" class="navbar__link<%= link.active ? ' navbar__link--active' : '' %>"<% if (link.external) { %> target="_blank" rel="noopener noreferrer"<% } %>><%= link.label %></a>
+      <% } else { %>
+        <a href="<%= link.href %>" class="navbar__link navbar__link--icon" aria-label="<%= link.label %>"<% if (link.external) { %> target="_blank" rel="noopener noreferrer"<% } %>>
+          <img src="<%= link.iconSrc %>" alt="" class="navbar__icon">
+        </a>
+      <% } %>
+    <% }) %>
   </nav>
 </header>

@@ -38,7 +38,29 @@ dist/           Generated HTML (gitignored, rebuilt automatically)
 
 ## Configuration
 
-Edit `config.json` to set the site name, logo, footer, social links, and optional sidebar widgets. Empty `github` or `discord` URLs hide those nav icons.
+Edit `config.json` to set the site name, logo, footer, nav links, and optional sidebar widgets.
+
+### Navigation links
+
+Configure `nav.links` with text or icon entries:
+
+```json
+"nav": {
+  "links": [
+    { "type": "text", "label": "Home", "href": "/" },
+    { "type": "text", "label": "About", "href": "/about" },
+    { "type": "icon", "label": "Github", "href": "https://github.com/you", "icon": "/img/github.svg" },
+    { "type": "icon", "label": "Discord", "href": "https://discord.gg/invite", "icon": "https://www.svgrepo.com/download/506463/discord.svg" }
+  ]
+}
+```
+
+- **text** — standard nav label + href (internal paths or external URLs)
+- **icon** — SVG icon link; `icon` can be a local path under `public/` (e.g. `/img/github.svg`) or a remote SVG URL (downloaded once to `public/img/links/cached/` and reused on later builds)
+
+Set `NAV_ICONS_REFRESH=true` to force re-downloading remote icons. If a download fails (e.g. HTTP 429), the last cached copy is used when available.
+
+External URLs open in a new tab. The active state is matched from the current page path.
 
 Status plugins are configured under `status.plugin` — built-in options are `mock`, `tcp-check`, and `http`.
 
@@ -116,6 +138,7 @@ Page content here.
 | `OUTPUT_DIR` | `./dist` | Pre-rendered HTML output |
 | `MINIFY` | enabled | Set to `false` to disable HTML minification |
 | `API_ONLY` | `false` | Set to `true` in Docker so Node only serves `/api/*` |
+| `NAV_ICONS_REFRESH` | `false` | Set to `true` to re-download remote nav SVGs |
 
 ## Development note
 

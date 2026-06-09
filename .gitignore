@@ -1,2 +1,4 @@
 node_modules
 dist
+public/img/links/cached/*
+!public/img/links/cached/.gitkeep

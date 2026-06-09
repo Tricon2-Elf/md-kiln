@@ -44,7 +44,8 @@ Do not add per-route hardcoding (e.g. a dedicated `/about` route). Content pages
 
 ## Conventions
 
-- **Config-driven branding** — site name, links, sidebar visibility live in `config.json`, not templates.
+- **Config-driven branding** — site name, nav links, sidebar visibility live in `config.json`, not templates.
+- **Nav links** — `nav.links` supports `text` and `icon` types; remote SVG icons are cached in `public/img/links/cached/` during build (`lib/nav-links.js`).
 - **Server-side rendering only** — do not fetch markdown from client JS; render in `lib/build.js`.
 - **Minimal dependencies** — prefer Node built-ins; justify new packages.
 - **Scoped changes** — match existing style in `lib/` and `views/partials/`.

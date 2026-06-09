@@ -19,9 +19,12 @@
       "gradientEnd": "#FFFFFF"
     }
   },
-  "links": {
-    "github": "",
-    "discord": ""
+  "nav": {
+    "links": [
+      { "type": "text", "label": "About", "href": "/about" },
+      { "type": "icon", "label": "Github", "href": "https://github.com", "icon": "https://icons.getbootstrap.com/assets/icons/github.svg" },
+      { "type": "icon", "label": "Discord", "href": "https://discord.gg", "icon": "https://www.svgrepo.com/download/506463/discord.svg" }
+    ]
   },
   "sidebar": {
     "cta": {
