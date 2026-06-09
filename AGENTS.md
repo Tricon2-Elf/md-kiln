@@ -31,7 +31,7 @@ config.json + posts/ + content/ + views/
 | `lib/watch.js` | File watcher with debounced rebuilds and logging |
 | `lib/utils.js` | Markdown, minify, theme vars, dates, path helpers |
 | `lib/nav.js` | Nav link resolution and remote SVG caching |
-| `lib/feeds.js` | RSS (`feed.xml`) and sitemap (`sitemap.xml`) generation |
+| `lib/feeds.js` | RSS (`feed.xml` via [`feed`](https://www.npmjs.com/package/feed)) and sitemap (`sitemap.xml`) generation |
 | `lib/validate-config.js` | Config schema validation |
 | `config.example.json` | Example config for new deployments |
 | `views/` | EJS templates; use partials for shared layout |
