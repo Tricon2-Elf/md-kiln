@@ -66,7 +66,14 @@ Register built-in plugins in `plugins/index.js`. Wire via `config.json` → `sta
 
 ## Docker
 
-`docker-compose.yml` mounts `config.json`, `content/`, and `posts/`. Template changes (`views/`) require an image rebuild unless views are also mounted.
+Docker Compose runs two services:
+
+- **web** — builds `dist/`, watches for changes, serves `/api/*` only (`API_ONLY=true`)
+- **nginx** — serves `dist/` and `public/` on port 3000, proxies `/api/` to web
+
+`config.json`, `content/`, and `posts/` are bind-mounted. `dist/` is a shared volume between web and nginx. Template changes (`views/`) require an image rebuild unless views are also mounted.
+
+Local `npm start` (without Docker) serves static files from Node directly.
 
 ## When editing
 

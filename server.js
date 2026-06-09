@@ -7,6 +7,7 @@ const { runBuild, startWatcher } = require('./lib/watch');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const API_ONLY = process.env.API_ONLY === 'true';
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
 app.get('/api/status', async (_req, res) => {
@@ -25,12 +26,14 @@ app.get('/api/status', async (_req, res) => {
   }
 });
 
-app.use(express.static(OUTPUT_DIR, { index: 'index.html' }));
-app.use(express.static(PUBLIC_DIR));
+if (!API_ONLY) {
+  app.use(express.static(OUTPUT_DIR, { index: 'index.html' }));
+  app.use(express.static(PUBLIC_DIR));
 
-app.get('*', (_req, res) => {
-  res.sendFile(path.join(OUTPUT_DIR, 'index.html'));
-});
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(OUTPUT_DIR, 'index.html'));
+  });
+}
 
 async function start() {
   await loadConfig();
@@ -38,7 +41,8 @@ async function start() {
   startWatcher();
 
   app.listen(PORT, () => {
-    console.log(`${getConfig().site.name} running on http://localhost:${PORT}`);
+    const mode = API_ONLY ? 'API only' : 'full';
+    console.log(`${getConfig().site.name} running (${mode}) on http://localhost:${PORT}`);
   });
 }
 

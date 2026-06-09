@@ -17,7 +17,11 @@ Open [http://localhost:3000](http://localhost:3000).
 docker compose up --build
 ```
 
-`config.json`, `content/`, and `posts/` are mounted from the host so you can edit them without rebuilding the image.
+Open [http://localhost:3000](http://localhost:3000). Nginx serves pre-rendered pages from `dist/` and assets from `public/`; `/api/*` requests are proxied to the Node app.
+
+`config.json`, `content/`, and `posts/` are mounted from the host so you can edit them without rebuilding the image. The Node container rebuilds `dist/` into a shared volume that Nginx reads.
+
+For local development without Docker, `npm start` serves everything directly from Node.
 
 ## Project layout
 
@@ -73,6 +77,7 @@ Page content here.
 | `CONTENT_DIR` | `./content` | Static pages directory |
 | `OUTPUT_DIR` | `./dist` | Pre-rendered HTML output |
 | `MINIFY` | enabled | Set to `false` to disable HTML minification |
+| `API_ONLY` | `false` | Set to `true` in Docker so Node only serves `/api/*` |
 
 ## Development note
 
