@@ -3,7 +3,7 @@
     "name": "My Site",
     "tagline": "A markdown-powered site",
     "logo": "/img/logo.jpg",
-    "footer": "Powered by markdown-site"
+    "footer": "Powered by mdklin"
   },
   "home": {
     "title": "Latest News",

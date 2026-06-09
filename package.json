@@ -1,7 +1,7 @@
 {
-  "name": "markdown-site",
+  "name": "mdklin",
   "version": "1.0.0",
-  "description": "Configurable markdown-powered static site",
+  "description": "Pre-rendered markdown site generator",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
