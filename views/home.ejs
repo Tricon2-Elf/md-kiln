@@ -1,0 +1,23 @@
+<%- include('partials/head', { title: config.site.name + ' — ' + config.site.tagline }) %>
+<%- include('partials/nav', { active: 'home' }) %>
+
+<main class="layout<%= hasSidebar ? '' : ' layout--full' %>">
+  <section class="content">
+    <div class="content__header">
+      <h1 class="content__title"><%= config.home.title %></h1>
+      <p class="content__subtitle"><%= config.home.subtitle %></p>
+    </div>
+    <div class="blog-list">
+      <% if (!posts.length) { %>
+        <p class="blog-empty">No posts yet.</p>
+      <% } else { %>
+        <% posts.forEach(function(post) { %>
+          <%- include('partials/blog-card', { post }) %>
+        <% }) %>
+      <% } %>
+    </div>
+  </section>
+  <% if (hasSidebar) { %><%- include('partials/sidebar') %><% } %>
+</main>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,15 @@
+<article class="article<%= article.image ? ' article--has-image' : '' %>">
+  <% if (article.image) { %>
+    <img class="article__image" src="<%= article.image %>" alt="<%= article.title %>" loading="lazy">
+  <% } %>
+  <div class="article__body">
+    <% if (typeof showMeta !== 'undefined' && showMeta) { %>
+      <div class="article__meta">
+        <span class="blog-card__tag"><%= article.tag %></span>
+        <time class="blog-card__date"><%= formatDate(article.date) %></time>
+      </div>
+    <% } %>
+    <h1 class="article__title"><%= article.title %></h1>
+    <div class="article__text"><%- article.html %></div>
+  </div>
+</article>

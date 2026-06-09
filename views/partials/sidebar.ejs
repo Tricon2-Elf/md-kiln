@@ -1,0 +1,27 @@
+<aside class="sidebar">
+  <% if (config.sidebar.cta.enabled) { %>
+    <div class="sidebar__card sidebar__card--join">
+      <div class="sidebar__sparkle">☆</div>
+      <h2 class="sidebar__heading"><%= config.sidebar.cta.heading %></h2>
+      <p class="sidebar__text"><%= config.sidebar.cta.text %></p>
+      <a href="<%= config.sidebar.cta.buttonHref %>" class="btn-join"><%= config.sidebar.cta.buttonText %></a>
+    </div>
+  <% } %>
+
+  <% if (config.sidebar.status.enabled) { %>
+    <div class="sidebar__card sidebar__card--status">
+      <h2 class="sidebar__heading"><%= config.sidebar.status.heading %></h2>
+      <div class="status">
+        <div class="status__row">
+          <span class="status__label"><%= config.sidebar.status.statusLabel %></span>
+          <span id="server-status" class="status__badge status__badge--loading">Checking…</span>
+        </div>
+        <div class="status__row">
+          <span class="status__label"><%= config.sidebar.status.playersLabel %></span>
+          <span id="player-count" class="status__value">—</span>
+        </div>
+      </div>
+      <p class="status__updated">Updated <span id="status-time">—</span></p>
+    </div>
+  <% } %>
+</aside>

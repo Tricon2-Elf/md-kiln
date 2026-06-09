@@ -1,0 +1,41 @@
+{
+  "site": {
+    "name": "My Site",
+    "tagline": "A markdown-powered site",
+    "logo": "/img/logo.jpg",
+    "footer": "Powered by markdown-site"
+  },
+  "home": {
+    "title": "Latest News",
+    "subtitle": "Recent updates and announcements"
+  },
+  "posts": {
+    "pageTitle": "News"
+  },
+  "links": {
+    "github": "",
+    "discord": ""
+  },
+  "sidebar": {
+    "cta": {
+      "enabled": false,
+      "heading": "Get Started",
+      "text": "Learn more and get involved.",
+      "buttonText": "Learn More",
+      "buttonHref": "#"
+    },
+    "status": {
+      "enabled": false,
+      "heading": "Server Status",
+      "statusLabel": "Status",
+      "playersLabel": "Players Online"
+    }
+  },
+  "status": {
+    "plugin": "mock",
+    "options": {
+      "online": true,
+      "players": 0
+    }
+  }
+}

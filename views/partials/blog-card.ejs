@@ -1,0 +1,14 @@
+<article class="blog-card<%= post.image ? ' blog-card--has-image' : '' %>">
+  <% if (post.image) { %>
+    <img class="blog-card__image" src="<%= post.image %>" alt="<%= post.title %>" loading="lazy">
+  <% } %>
+  <div class="blog-card__body">
+    <div class="blog-card__meta">
+      <span class="blog-card__tag"><%= post.tag %></span>
+      <time class="blog-card__date"><%= formatDate(post.date) %></time>
+    </div>
+    <h2 class="blog-card__title"><%= post.title %></h2>
+    <p class="blog-card__excerpt"><%= post.excerpt %></p>
+    <a href="/news/<%= post.slug %>" class="blog-card__read">Read more →</a>
+  </div>
+</article>

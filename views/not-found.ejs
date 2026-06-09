@@ -1,0 +1,11 @@
+<%- include('partials/head', { title }) %>
+<%- include('partials/nav', { active: null }) %>
+
+<main class="layout<%= hasSidebar ? '' : ' layout--full' %>">
+  <section class="content">
+    <p class="blog-empty">Page not found.</p>
+  </section>
+  <% if (hasSidebar) { %><%- include('partials/sidebar') %><% } %>
+</main>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,11 @@
+<%- include('partials/head', { title }) %>
+<%- include('partials/nav', { active }) %>
+
+<main class="layout<%= hasSidebar ? '' : ' layout--full' %>">
+  <section class="content">
+    <%- include('partials/article', { article, showMeta }) %>
+  </section>
+  <% if (hasSidebar) { %><%- include('partials/sidebar') %><% } %>
+</main>
+
+<%- include('partials/footer') %>

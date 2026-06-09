@@ -1,0 +1,14 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config.json:/app/config.json
+      - ./content:/app/content
+      - ./posts:/app/posts
+    environment:
+      CONFIG_PATH: /app/config.json
+      CONTENT_DIR: /app/content
+      POSTS_DIR: /app/posts
+    restart: unless-stopped

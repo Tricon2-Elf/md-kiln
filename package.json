@@ -1,0 +1,14 @@
+{
+  "name": "markdown-site",
+  "version": "1.0.0",
+  "description": "Configurable markdown-powered static site",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "marked": "^15.0.7"
+  }
+}
