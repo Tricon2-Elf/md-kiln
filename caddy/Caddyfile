@@ -1,0 +1,42 @@
+# DOMAIN unset → HTTP on :3000 (local). DOMAIN set → automatic HTTPS via Let's Encrypt.
+{$DOMAIN} {
+	encode gzip zstd
+
+	handle /api/* {
+		reverse_proxy web:3000
+	}
+
+	handle /img/links/cached/* {
+		root * /app/dist
+		file_server
+	}
+
+	handle / {
+		root * /app/dist
+		try_files /index.html
+		file_server
+	}
+
+	handle {
+		root * /app/dist
+
+		@missingDist not file {path}
+		route @missingDist {
+			@missingIndex not file {path}/index.html
+			route @missingIndex {
+				root * /app/public
+				@missingPublic not file {path}
+				route @missingPublic {
+					root * /app/dist
+					rewrite * /index.html
+					file_server
+				}
+				file_server
+			}
+			rewrite * {path}/index.html
+			file_server
+		}
+
+		file_server
+	}
+}

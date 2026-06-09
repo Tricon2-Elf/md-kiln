@@ -24,11 +24,24 @@ npm run build
 docker compose up --build
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Nginx serves the built site from `dist/` (HTML, CSS, JS, cached nav icons) and falls back to `public/` for user-uploaded assets (logos, post images); `/api/*` requests are proxied to the Node app.
+Open [http://localhost:3000](http://localhost:3000). Caddy serves the built site from `dist/` (HTML, CSS, JS, cached nav icons) and falls back to `public/` for user-uploaded assets (logos, post images); `/api/*` requests are proxied to the Node app.
 
-`config.json`, `content/`, `posts/`, and `public/` are mounted from the host so you can edit them without rebuilding the image. The Node container rebuilds `dist/` into a shared volume that Nginx reads.
+`config.json`, `content/`, `posts/`, and `public/` are mounted from the host so you can edit them without rebuilding the image. The Node container rebuilds `dist/` into a shared volume that Caddy reads.
 
 For local development without Docker, `npm start` serves everything directly from Node.
+
+### HTTPS (Let's Encrypt)
+
+Copy `.env.example` to `.env` and set your public hostname:
+
+```bash
+cp .env.example .env
+# DOMAIN=example.com
+# CADDY_EMAIL=you@example.com
+docker compose up -d --build
+```
+
+When `DOMAIN` is set, Caddy obtains and renews TLS certificates automatically. Ensure ports **80** and **443** reach the host (required for ACME HTTP-01 validation). Leave `DOMAIN` empty for local HTTP on port 3000 only.
 
 ## Project layout
 
@@ -166,6 +179,8 @@ Page content here.
 | `API_ONLY` | `false` | Set to `true` in Docker so Node only serves `/api/*` |
 | `NAV_ICONS_REFRESH` | `false` | Set to `true` to re-download remote nav SVGs |
 | `SITE_URL` | `config.site.url` | Override site URL for RSS/sitemap |
+| `DOMAIN` | (Docker) empty → `:3000` | Public hostname for HTTPS in Docker; leave empty for local HTTP |
+| `CADDY_EMAIL` | (Docker) empty | Let's Encrypt contact email in Docker (recommended when `DOMAIN` is set) |
 
 ## Development note
 

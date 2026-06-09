@@ -79,9 +79,11 @@ Register built-in plugins in `plugins/index.js`. Wire via `config.json` → `sta
 Docker Compose runs two services:
 
 - **web** — builds `dist/`, watches for changes, serves `/api/*` only (`API_ONLY=true`)
-- **nginx** — serves `dist/` then `public/` on port 3000, proxies `/api/` to web
+- **caddy** — serves `dist/` then `public/` on port 3000 (local) or with automatic HTTPS when `DOMAIN` is set in `.env`, proxies `/api/` to web
 
-`config.json`, `content/`, `posts/`, and `public/` are bind-mounted for user content. `dist/` is a shared volume between web and nginx (HTML, CSS, JS, cached nav icons). Template and asset changes (`views/`, `assets/`) require an image rebuild unless those dirs are also mounted.
+`config.json`, `content/`, `posts/`, and `public/` are bind-mounted for user content. `dist/` is a shared volume between web and caddy (HTML, CSS, JS, cached nav icons). Template and asset changes (`views/`, `assets/`) require an image rebuild unless those dirs are also mounted.
+
+Set `DOMAIN` and `CADDY_EMAIL` in `.env` (see `.env.example`) for Let's Encrypt certificate provisioning and auto-renewal.
 
 Local `npm start` (without Docker) serves static files from Node directly.
 
