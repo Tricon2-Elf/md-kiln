@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const { runStatusPlugin } = require('./plugins');
-const { loadConfig, getConfig } = require('./lib/site-data');
+const { loadConfig, getConfig } = require('./lib/content');
 const { OUTPUT_DIR } = require('./lib/build');
 const { runBuild, startWatcher } = require('./lib/watch');
 

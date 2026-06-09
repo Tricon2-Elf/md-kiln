@@ -5,11 +5,18 @@ A small, config-driven site generator. Write content in Markdown, customise bran
 ## Quick start
 
 ```bash
+cp config.example.json config.json
 npm install
 npm start
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+Build static files only (writes to `dist/` and exits):
+
+```bash
+npm run build
+```
 
 ## Docker
 
@@ -26,7 +33,7 @@ For local development without Docker, `npm start` serves everything directly fro
 ## Project layout
 
 ```
-config.json     Site branding, links, sidebar, status plugin
+config.json     Site branding, links, sidebar, status plugin (see config.example.json)
 content/        Static pages (e.g. about.md → /about)
 posts/          News posts (e.g. foo.md → /news/foo)
 views/          EJS templates
@@ -38,7 +45,9 @@ dist/           Generated HTML (gitignored, rebuilt automatically)
 
 ## Configuration
 
-Edit `config.json` to set the site name, logo, footer, nav links, and optional sidebar widgets.
+Copy `config.example.json` to `config.json` and edit it to set the site name, URL, logo, footer, nav links, and optional sidebar widgets. Config is validated on load — invalid values will fail the build with a clear error.
+
+`site.url` is used for RSS and sitemap absolute URLs (override with `SITE_URL` env var).
 
 ### Navigation links
 
@@ -139,6 +148,7 @@ Page content here.
 | `MINIFY` | enabled | Set to `false` to disable HTML minification |
 | `API_ONLY` | `false` | Set to `true` in Docker so Node only serves `/api/*` |
 | `NAV_ICONS_REFRESH` | `false` | Set to `true` to re-download remote nav SVGs |
+| `SITE_URL` | `config.site.url` | Override site URL for RSS/sitemap |
 
 ## Development note
 

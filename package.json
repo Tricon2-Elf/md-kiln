@@ -4,6 +4,7 @@
   "description": "Pre-rendered markdown site generator",
   "main": "server.js",
   "scripts": {
+    "build": "node scripts/build.js",
     "start": "node server.js"
   },
   "dependencies": {
