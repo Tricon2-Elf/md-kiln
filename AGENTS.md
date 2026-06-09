@@ -32,7 +32,7 @@ config.json + posts/ + content/ + views/
 | `lib/utils.js` | Markdown, minify, theme vars, dates, path helpers |
 | `lib/nav.js` | Nav link resolution and remote SVG caching |
 | `lib/feeds.js` | RSS (`feed.xml` via [`feed`](https://www.npmjs.com/package/feed)) and sitemap (`sitemap.xml`) generation |
-| `lib/validate-config.js` | Config schema validation |
+| `lib/validate-config.js` | Config validation ([AJV](https://ajv.js.org/) + `lib/config.schema.json`) |
 | `config.example.json` | Example config for new deployments |
 | `views/` | EJS templates; use partials for shared layout |
 | `plugins/` | Status plugins exporting `getStatus(options)` |

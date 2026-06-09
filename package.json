@@ -8,6 +8,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "ajv": "^8.20.0",
     "ejs": "^3.1.10",
     "express": "^4.22.2",
     "feed": "^5.2.1",
