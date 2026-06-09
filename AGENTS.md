@@ -15,7 +15,7 @@ config.json + posts/ + content/ + views/
         ↓
    lib/watch.js  (rebuild on .md / .json / .ejs changes)
         ↓
-   server.js     (serve dist/ + public/, /api/status)
+   server.js     (serve dist/ + public/ user assets, /api/status)
 ```
 
 `npm run build` runs a one-shot build via `scripts/build.js` without starting the server.
@@ -54,12 +54,12 @@ Do not add per-route hardcoding (e.g. a dedicated `/about` route). Content pages
 
 - **Config-driven branding** — site name, nav links, sidebar visibility live in `config.json`, not templates.
 - **Config validation** — `lib/validate-config.js` runs on every `loadConfig()`; update it when adding config fields.
-- **Nav links** — `nav.links` supports `text` and `icon` types; remote SVG icons are cached in `public/img/links/cached/` during build (`lib/nav.js`).
+- **Nav links** — `nav.links` supports `text` and `icon` types; remote SVG icons are cached in `dist/img/links/cached/` during build (`lib/nav.js`). Local icons live under the user `public/` mount.
 - **Server-side rendering only** — do not fetch markdown from client JS; render in `lib/build.js`.
 - **Minimal dependencies** — prefer Node built-ins; justify new packages.
 - **Scoped changes** — match existing style in `lib/` and `views/partials/`.
-- **No external fonts** — use system font stacks in `public/css/style.css`.
-- **`dist/` is generated** — never hand-edit; it is cleared and rebuilt each time.
+- **No external fonts** — use system font stacks in `assets/css/style.css` (copied to `dist/` on build).
+- **`dist/` is generated** — never hand-edit; HTML/CSS/JS are rebuilt each time; nav icon cache under `dist/img/links/cached/` is preserved across rebuilds.
 
 ## Status plugins
 
@@ -81,7 +81,7 @@ Docker Compose runs two services:
 - **web** — builds `dist/`, watches for changes, serves `/api/*` only (`API_ONLY=true`)
 - **nginx** — serves `dist/` then `public/` on port 3000, proxies `/api/` to web
 
-`config.json`, `content/`, and `posts/` are bind-mounted. `dist/` is a shared volume between web and nginx. Template changes (`views/`) require an image rebuild unless views are also mounted.
+`config.json`, `content/`, `posts/`, and `public/` are bind-mounted for user content. `dist/` is a shared volume between web and nginx (HTML, CSS, JS, cached nav icons). Template and asset changes (`views/`, `assets/`) require an image rebuild unless those dirs are also mounted.
 
 Local `npm start` (without Docker) serves static files from Node directly.
 
@@ -91,7 +91,7 @@ Local `npm start` (without Docker) serves static files from Node directly.
 - New page → add `content/foo.md` (served at `/foo`)
 - New post → add `posts/foo.md` (served at `/news/foo`)
 - Branding/links → `config.json` (see `config.example.json`)
-- Styles → `public/css/style.css`
+- Styles → `assets/css/style.css`
 - Rebuild logging → `lib/watch.js`
 
 ## Development history

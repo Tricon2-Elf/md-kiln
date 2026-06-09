@@ -9,7 +9,7 @@ COPY server.js config.json ./
 COPY lib ./lib
 COPY plugins ./plugins
 COPY views ./views
-COPY public ./public
+COPY assets ./assets
 COPY content ./content
 
 EXPOSE 3000

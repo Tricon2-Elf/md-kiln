@@ -8,7 +8,7 @@ const { runBuild, startWatcher } = require('./lib/watch');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const API_ONLY = process.env.API_ONLY === 'true';
-const PUBLIC_DIR = path.join(__dirname, 'public');
+const PUBLIC_DIR = process.env.PUBLIC_DIR || path.join(__dirname, 'public');
 
 app.get('/api/status', async (_req, res) => {
   const config = getConfig();
