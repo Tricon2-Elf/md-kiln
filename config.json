@@ -4,7 +4,7 @@
     "tagline": "A markdown-powered site",
     "url": "http://localhost:3000",
     "logo": "/img/logo.jpg",
-    "footer": "Powered by mdklin"
+    "footer": "Default footer text"
   },
   "home": {
     "title": "Latest News",

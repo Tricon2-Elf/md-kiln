@@ -4,7 +4,7 @@
     "tagline": "A markdown-powered site",
     "url": "https://example.com",
     "logo": "/img/logo.jpg",
-    "footer": "Powered by mdklin"
+    "footer": "Default footer text"
   },
   "home": {
     "title": "Latest News",
