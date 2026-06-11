@@ -83,7 +83,7 @@ Docker Compose runs two services:
 
 `config.json`, `content/`, `posts/`, and `public/` are bind-mounted for user content. `dist/` is a shared volume between web and caddy (HTML, CSS, JS, cached nav icons). Template and asset changes (`views/`, `assets/`) require an image rebuild unless those dirs are also mounted.
 
-Set `DOMAIN` and `CADDY_EMAIL` in `.env` (see `.env.example`) for Let's Encrypt certificate provisioning and auto-renewal.
+Set `DOMAIN` in `.env` (see `.env.example`) for Let's Encrypt certificate provisioning and auto-renewal.
 
 Local `npm start` (without Docker) serves static files from Node directly.
 

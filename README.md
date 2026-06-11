@@ -37,7 +37,6 @@ Copy `.env.example` to `.env` and set your public hostname:
 ```bash
 cp .env.example .env
 # DOMAIN=example.com
-# CADDY_EMAIL=you@example.com
 docker compose up -d --build
 ```
 
@@ -180,7 +179,6 @@ Page content here.
 | `NAV_ICONS_REFRESH` | `false` | Set to `true` to re-download remote nav SVGs |
 | `SITE_URL` | `config.site.url` | Override site URL for RSS/sitemap |
 | `DOMAIN` | (Docker) empty → `:3000` | Public hostname for HTTPS in Docker; leave empty for local HTTP |
-| `CADDY_EMAIL` | (Docker) empty | Let's Encrypt contact email in Docker (recommended when `DOMAIN` is set) |
 
 ## Development note
 

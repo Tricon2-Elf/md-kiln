@@ -44,7 +44,7 @@
       "buttonHref": "/getting-started"
     },
     "status": {
-      "enabled": true,
+      "enabled": false,
       "heading": "Server Status",
       "statusLabel": "Status",
       "playersLabel": "Players Online"

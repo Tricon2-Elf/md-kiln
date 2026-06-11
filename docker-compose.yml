@@ -32,7 +32,6 @@ services:
       - "443:443/udp"
     environment:
       DOMAIN: ${DOMAIN:-}
-      CADDY_EMAIL: ${CADDY_EMAIL:-}
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./caddy/docker-entrypoint.sh:/etc/caddy/docker-entrypoint.sh:ro
