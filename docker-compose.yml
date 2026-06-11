@@ -7,9 +7,9 @@ services:
       - ./config.json:/app/config.json
       - ./content:/app/content
       - ./posts:/app/posts
+      - ./public:/app/public
       - dist:/app/dist
     environment:
-      API_ONLY: "true"
       CONFIG_PATH: /app/config.json
       CONTENT_DIR: /app/content
       POSTS_DIR: /app/posts
@@ -37,8 +37,6 @@ services:
       - ./caddy/docker-entrypoint.sh:/etc/caddy/docker-entrypoint.sh:ro
       - caddy_data:/data
       - caddy_config:/config
-      - dist:/app/dist:ro
-      - ./public:/app/public:ro
     depends_on:
       web:
         condition: service_healthy

@@ -78,10 +78,10 @@ Register built-in plugins in `plugins/index.js`. Wire via `config.json` → `sta
 
 Docker Compose runs two services:
 
-- **web** — builds `dist/`, watches for changes, serves `/api/*` only (`API_ONLY=true`)
-- **caddy** — serves `dist/` then `public/` on port 3000 (local) or with automatic HTTPS when `DOMAIN` is set in `.env`, proxies `/api/` to web
+- **web** — builds `dist/`, watches for changes, serves the site and `/api/status`
+- **caddy** — reverse-proxies to web on port 3000 (local HTTP) or with automatic HTTPS when `DOMAIN` is set in `.env`
 
-`config.json`, `content/`, `posts/`, and `public/` are bind-mounted for user content. `dist/` is a shared volume between web and caddy (HTML, CSS, JS, cached nav icons). Template and asset changes (`views/`, `assets/`) require an image rebuild unless those dirs are also mounted.
+`config.json`, `content/`, `posts/`, and `public/` are bind-mounted for user content. `dist/` is a volume on web (HTML, CSS, JS, cached nav icons). Template and asset changes (`views/`, `assets/`) require an image rebuild unless those dirs are also mounted.
 
 Set `DOMAIN` in `.env` (see `.env.example`) for Let's Encrypt certificate provisioning and auto-renewal.
 

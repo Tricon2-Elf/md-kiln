@@ -24,9 +24,9 @@ npm run build
 docker compose up --build
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Caddy serves the built site from `dist/` (HTML, CSS, JS, cached nav icons) and falls back to `public/` for user-uploaded assets (logos, post images); `/api/*` requests are proxied to the Node app.
+Open [http://localhost:3000](http://localhost:3000). Caddy reverse-proxies to the Node app, which serves the built site from `dist/` (HTML, CSS, JS, cached nav icons) and user assets from `public/`.
 
-`config.json`, `content/`, `posts/`, and `public/` are mounted from the host so you can edit them without rebuilding the image. The Node container rebuilds `dist/` into a shared volume that Caddy reads.
+`config.json`, `content/`, `posts/`, and `public/` are mounted from the host so you can edit them without rebuilding the image.
 
 For local development without Docker, `npm start` serves everything directly from Node.
 
@@ -175,7 +175,6 @@ Page content here.
 | `OUTPUT_DIR` | `./dist` | Build output (HTML, CSS, JS, cached icons) |
 | `PUBLIC_DIR` | `./public` | User-uploaded static assets (logos, images) |
 | `MINIFY` | enabled | Set to `false` to disable HTML minification |
-| `API_ONLY` | `false` | Set to `true` in Docker so Node only serves `/api/*` |
 | `NAV_ICONS_REFRESH` | `false` | Set to `true` to re-download remote nav SVGs |
 | `SITE_URL` | `config.site.url` | Override site URL for RSS/sitemap |
 | `DOMAIN` | (Docker) empty → `:3000` | Public hostname for HTTPS in Docker; leave empty for local HTTP |
