@@ -2,6 +2,9 @@
 
 A small, config-driven site generator. Write content in Markdown, customise branding in `config.json`, and mdklin pre-renders everything to static HTML on startup and when files change.
 
+## Screenshots
+<img width="2231" height="1293" alt="image" src="https://github.com/user-attachments/assets/3979d04f-85e3-40dc-9084-62d470b12817" />
+
 ## Quick start
 
 ```bash
