@@ -1,6 +1,6 @@
 import { Feed } from 'feed';
 import { getSiteUrl, escapeXml } from './utils';
-import type { AppConfig } from '../types/config';
+import type { AppConfig } from './config-schema';
 import type { PostSummary } from '../types/content';
 
 function toIsoDate(dateStr?: string): string {

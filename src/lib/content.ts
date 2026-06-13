@@ -2,9 +2,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import { CONFIG_PATH, CONTENT_DIR, POSTS_DIR } from '../paths';
 import { renderMarkdown, normalizeImagePath } from './utils';
-import { validateConfig } from './validate-config';
+import { validateConfig } from './config-schema';
 import { parseTagDef } from './tags';
-import type { AppConfig } from '../types/config';
+import type { AppConfig } from './config-schema';
 import type {
   ContentPage,
   FrontmatterResult,
@@ -74,8 +74,7 @@ function parsePost(raw: string, slug: string): Post {
 export async function loadConfig(): Promise<AppConfig> {
   const raw = await fs.readFile(CONFIG_PATH, 'utf8');
   const parsed: unknown = JSON.parse(raw);
-  validateConfig(parsed);
-  config = parsed;
+  config = validateConfig(parsed);
   return config;
 }
 

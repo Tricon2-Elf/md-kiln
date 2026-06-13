@@ -3,7 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { ICON_CACHE_DIR, LEGACY_ICON_CACHE_DIR } from '../paths';
 import { isRemoteUrl, normalizeLocalPath } from './utils';
-import type { IconNavLink, NavLink } from '../types/config';
+import type { IconNavLink, NavLink } from './config-schema';
 import type { CachedIconResult, ResolvedNavLink } from '../types/nav';
 
 const iconCache = new Map<string, string>();

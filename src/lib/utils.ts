@@ -1,6 +1,6 @@
 import { marked } from 'marked';
 import { minify, type Options as MinifyOptions } from 'html-minifier-terser';
-import type { AppConfig, ThemeBackground } from '../types/config';
+import type { AppConfig, ThemeBackground } from './config-schema';
 import type { ThemeVars } from '../types/theme';
 
 marked.setOptions({ gfm: true, breaks: true });

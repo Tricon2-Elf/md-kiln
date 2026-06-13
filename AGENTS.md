@@ -37,9 +37,9 @@ build/            (compiled JS run by Node)
 | `src/lib/utils.ts` | Markdown, minify, theme vars, dates, path helpers |
 | `src/lib/nav.ts` | Nav link resolution and remote SVG caching |
 | `src/lib/feeds.ts` | RSS (`feed.xml` via [`feed`](https://www.npmjs.com/package/feed)) and sitemap (`sitemap.xml`) generation |
-| `src/lib/validate-config.ts` | Config validation ([AJV](https://ajv.js.org/) + `src/lib/config.schema.json`) |
+| `src/lib/config-schema.ts` | Config validation ([Zod](https://zod.dev/)) and inferred config types |
 | `src/lib/tags.ts` | Post tag parsing and CSS named-color validation |
-| `src/types/` | Shared TypeScript types (`config`, `content`, `nav`, `plugins`, `build`, `theme`) |
+| `src/types/` | Shared TypeScript types (`content`, `nav`, `plugins`, `build`, `theme`; config types re-exported from `config-schema.ts`) |
 | `tsconfig.json` | TypeScript compiler options (`strict: true`) |
 | `config.example.json` | Example config for new deployments |
 | `views/` | EJS templates; use partials for shared layout |
@@ -71,9 +71,9 @@ Do not add per-route hardcoding (e.g. a dedicated `/about` route). Content pages
 ## Conventions
 
 - **TypeScript** — edit `src/` only; never hand-edit `build/`. Run `npm run compile` (or `npm run build`) after changes.
-- **Types** — add or update types in `src/types/` when introducing new config fields, content shapes, or plugin options. Update `src/lib/config.schema.json` and `validate-config.ts` for config changes.
+- **Types** — config types are inferred from `src/lib/config-schema.ts` (Zod). Add content/plugin/build types in `src/types/` when needed.
 - **Config-driven branding** — site name, nav links, sidebar visibility live in `config.json`, not templates.
-- **Config validation** — `src/lib/validate-config.ts` runs on every `loadConfig()`; update schema + types when adding config fields.
+- **Config validation** — `validateConfig()` in `src/lib/config-schema.ts` runs on every `loadConfig()`; update the Zod schema when adding config fields.
 - **Nav links** — `nav.links` supports `text` and `icon` types; remote SVG icons are cached in `dist/img/links/cached/` during build (`src/lib/nav.ts`). Local icons live under the user `public/` mount.
 - **Server-side rendering only** — do not fetch markdown from client JS; render in `src/lib/build.ts`.
 - **Minimal dependencies** — prefer Node built-ins; justify new packages.
