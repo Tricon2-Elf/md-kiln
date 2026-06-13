@@ -29,10 +29,24 @@
   "nav": {
     "links": [
       { "type": "text", "label": "Home", "href": "/" },
-      { "type": "text", "label": "Getting Started", "href": "/getting-started" },
+      {
+        "type": "text",
+        "label": "Getting Started",
+        "href": "/getting-started"
+      },
       { "type": "text", "label": "About", "href": "/about" },
-      { "type": "icon", "label": "Github", "href": "https://github.com", "icon": "https://icons.getbootstrap.com/assets/icons/github.svg" },
-      { "type": "icon", "label": "Discord", "href": "https://discord.gg", "icon": "https://www.svgrepo.com/download/506463/discord.svg" }
+      {
+        "type": "icon",
+        "label": "Github",
+        "href": "https://github.com",
+        "icon": "https://icons.getbootstrap.com/assets/icons/github.svg"
+      },
+      {
+        "type": "icon",
+        "label": "Discord",
+        "href": "https://discord.gg",
+        "icon": "https://www.svgrepo.com/download/506463/discord.svg"
+      }
     ]
   },
   "sidebar": {

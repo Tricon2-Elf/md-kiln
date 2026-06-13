@@ -1,15 +1,18 @@
-import { SitemapStream, streamToPromise } from 'sitemap';
-import { Feed } from 'feed';
-import { getSiteUrl } from './utils';
-import type { AppConfig } from './config-schema';
-import type { PostSummary } from '../types/content';
+import { SitemapStream, streamToPromise } from "sitemap";
+import { Feed } from "feed";
+import { getSiteUrl } from "./utils";
+import type { AppConfig } from "./config-schema";
+import type { PostSummary } from "../types/content";
 
 function toIsoDate(dateStr?: string): string {
   const date = dateStr ? new Date(dateStr) : new Date();
   return date.toISOString().slice(0, 10);
 }
 
-function absoluteUrl(siteUrl: string, assetPath: string | null | undefined): string | undefined {
+function absoluteUrl(
+  siteUrl: string,
+  assetPath: string | null | undefined,
+): string | undefined {
   if (!assetPath) return undefined;
 
   try {
@@ -40,7 +43,7 @@ export function buildRssFeed({ config, posts }: RssFeedInput): string {
     link: siteUrl,
     image: absoluteUrl(siteUrl, config.site.logo),
     copyright: config.site.footer || undefined,
-    generator: 'mdklin',
+    generator: "mdklin",
     feed: `${siteUrl}/feed.xml`,
   });
 
@@ -52,7 +55,7 @@ export function buildRssFeed({ config, posts }: RssFeedInput): string {
       id: postUrl,
       link: postUrl,
       guid: postUrl,
-      description: post.excerpt || '',
+      description: post.excerpt || "",
       date: post.date ? new Date(post.date) : new Date(),
       category: post.tag ? [{ name: post.tag }] : undefined,
       image: absoluteUrl(siteUrl, post.image),
@@ -62,12 +65,16 @@ export function buildRssFeed({ config, posts }: RssFeedInput): string {
   return feed.rss2();
 }
 
-export async function buildSitemap({ config, posts, contentSlugs }: SitemapInput): Promise<string> {
+export async function buildSitemap({
+  config,
+  posts,
+  contentSlugs,
+}: SitemapInput): Promise<string> {
   const siteUrl = getSiteUrl(config);
   const buildDate = toIsoDate();
   const stream = new SitemapStream({ hostname: siteUrl });
 
-  stream.write({ url: '/', lastmod: buildDate });
+  stream.write({ url: "/", lastmod: buildDate });
 
   for (const slug of contentSlugs) {
     stream.write({ url: `/${slug}`, lastmod: buildDate });

@@ -1,10 +1,10 @@
-import { z } from 'zod';
-import { isValidNamedColor } from './tags';
+import { z } from "zod";
+import { isValidNamedColor } from "./tags";
 
 const nonEmptyString = z.string().trim().min(1);
 
 const cssNamedColor = z.string().refine(isValidNamedColor, {
-  message: 'must be a CSS named color (e.g. steelblue, seagreen)',
+  message: "must be a CSS named color (e.g. steelblue, seagreen)",
 });
 
 const tagDefSchema = z.union([
@@ -29,8 +29,8 @@ const postsSchema = z
     if (keys.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'posts.tags must be a non-empty object',
-        path: ['tags'],
+        message: "posts.tags must be a non-empty object",
+        path: ["tags"],
       });
     }
 
@@ -39,7 +39,7 @@ const postsSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: `posts.tags key "${key}" must be lowercase alphanumeric (use hyphens if needed)`,
-          path: ['tags', key],
+          path: ["tags", key],
         });
       }
     }
@@ -49,14 +49,14 @@ const postsSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: `posts.defaultTag "${posts.defaultTag.trim()}" must be a key in posts.tags`,
-        path: ['defaultTag'],
+        path: ["defaultTag"],
       });
     }
   });
 
 const themeBackgroundSchema = z
   .object({
-    type: z.enum(['solid', 'gradient', 'image']).optional(),
+    type: z.enum(["solid", "gradient", "image"]).optional(),
     color: z.string().optional(),
     gradientStart: z.string().optional(),
     gradientEnd: z.string().optional(),
@@ -67,18 +67,18 @@ const themeBackgroundSchema = z
   })
   .passthrough()
   .superRefine((background, ctx) => {
-    if (background.type === 'image' && !background.image?.trim()) {
+    if (background.type === "image" && !background.image?.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'theme.background.image is required when type is "image"',
-        path: ['image'],
+        path: ["image"],
       });
     }
   });
 
 const textNavLinkSchema = z
   .object({
-    type: z.literal('text'),
+    type: z.literal("text"),
     label: nonEmptyString,
     href: nonEmptyString,
   })
@@ -86,7 +86,7 @@ const textNavLinkSchema = z
 
 const iconNavLinkSchema = z
   .object({
-    type: z.literal('icon'),
+    type: z.literal("icon"),
     label: nonEmptyString,
     href: nonEmptyString,
     icon: nonEmptyString,
@@ -106,26 +106,26 @@ const sidebarCtaSchema = z
     if (cta.enabled && !cta.buttonHref?.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'sidebar.cta.buttonHref is required when enabled',
-        path: ['buttonHref'],
+        message: "sidebar.cta.buttonHref is required when enabled",
+        path: ["buttonHref"],
       });
     }
   });
 
 const statusSchema = z
   .object({
-    plugin: z.enum(['mock', 'tcp-check', 'http']).optional(),
+    plugin: z.enum(["mock", "tcp-check", "http"]).optional(),
     options: z.record(z.string(), z.unknown()).optional(),
   })
   .passthrough()
   .superRefine((status, ctx) => {
-    if (status.plugin === 'http') {
+    if (status.plugin === "http") {
       const url = status.options?.url;
-      if (typeof url !== 'string' || !url.trim()) {
+      if (typeof url !== "string" || !url.trim()) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'status.options.url is required when plugin is "http"',
-          path: ['options', 'url'],
+          path: ["options", "url"],
         });
       }
     }
@@ -147,7 +147,7 @@ export const appConfigSchema = z
         name: nonEmptyString,
         tagline: nonEmptyString,
         url: nonEmptyString.regex(/^https?:\/\//, {
-          message: 'site.url must start with http:// or https://',
+          message: "site.url must start with http:// or https://",
         }),
         logo: z.string().optional(),
         footer: z.string().optional(),
@@ -160,9 +160,11 @@ export const appConfigSchema = z
       })
       .passthrough(),
     posts: postsSchema,
-    nav: z.object({
-      links: z.array(z.union([textNavLinkSchema, iconNavLinkSchema])),
-    }).passthrough(),
+    nav: z
+      .object({
+        links: z.array(z.union([textNavLinkSchema, iconNavLinkSchema])),
+      })
+      .passthrough(),
     theme: z
       .object({
         background: themeBackgroundSchema.optional(),
@@ -181,21 +183,25 @@ export const appConfigSchema = z
   .passthrough();
 
 export type AppConfig = z.infer<typeof appConfigSchema>;
-export type BackgroundType = z.infer<typeof themeBackgroundSchema>['type'];
-export type SiteConfig = AppConfig['site'];
-export type HomeConfig = AppConfig['home'];
+export type BackgroundType = z.infer<typeof themeBackgroundSchema>["type"];
+export type SiteConfig = AppConfig["site"];
+export type HomeConfig = AppConfig["home"];
 export type TagDef = z.infer<typeof tagDefSchema>;
-export type PostsConfig = AppConfig['posts'];
+export type PostsConfig = AppConfig["posts"];
 export type ThemeBackground = z.infer<typeof themeBackgroundSchema>;
-export type ThemeConfig = NonNullable<AppConfig['theme']>;
+export type ThemeConfig = NonNullable<AppConfig["theme"]>;
 export type TextNavLink = z.infer<typeof textNavLinkSchema>;
 export type IconNavLink = z.infer<typeof iconNavLinkSchema>;
-export type NavLink = z.infer<typeof textNavLinkSchema> | z.infer<typeof iconNavLinkSchema>;
-export type NavConfig = AppConfig['nav'];
+export type NavLink =
+  | z.infer<typeof textNavLinkSchema>
+  | z.infer<typeof iconNavLinkSchema>;
+export type NavConfig = AppConfig["nav"];
 export type SidebarCtaConfig = z.infer<typeof sidebarCtaSchema>;
 export type SidebarStatusConfig = z.infer<typeof sidebarStatusSchema>;
-export type SidebarConfig = NonNullable<AppConfig['sidebar']>;
-export type StatusPluginName = NonNullable<NonNullable<AppConfig['status']>['plugin']>;
+export type SidebarConfig = NonNullable<AppConfig["sidebar"]>;
+export type StatusPluginName = NonNullable<
+  NonNullable<AppConfig["status"]>["plugin"]
+>;
 
 export interface MockStatusOptions {
   online?: boolean;
@@ -222,42 +228,52 @@ export type StatusOptions =
   | HttpStatusOptions
   | Record<string, unknown>;
 
-export type StatusConfig = NonNullable<AppConfig['status']>;
+export type StatusConfig = NonNullable<AppConfig["status"]>;
 
 function formatIssuePath(path: PropertyKey[]): string {
-  if (path.length === 0) return 'config';
-  return path.map(String).join('.');
+  if (path.length === 0) return "config";
+  return path.map(String).join(".");
 }
 
 function formatZodError(error: z.ZodError): string[] {
-  return [...new Set(error.issues.map((issue) => {
-    const path = formatIssuePath(issue.path);
-    if (issue.code === z.ZodIssueCode.invalid_type && issue.received === 'undefined') {
-      return `${path} is required`;
-    }
-    if (path.endsWith('.type') && issue.code === z.ZodIssueCode.invalid_enum_value) {
-      if (path === 'theme.background.type') {
-        return 'theme.background.type must be "solid", "gradient", or "image"';
-      }
-      if (path === 'status.plugin') {
-        return `status.plugin must be one of: ${issue.options.join(', ')}`;
-      }
-      if (path.endsWith('.type')) {
-        return `${path} must be "text" or "icon"`;
-      }
-    }
-    if (issue.message && path !== 'config') {
-      return `${path} ${issue.message}`;
-    }
-    return issue.message || `${path} is invalid`;
-  }))];
+  return [
+    ...new Set(
+      error.issues.map((issue) => {
+        const path = formatIssuePath(issue.path);
+        if (
+          issue.code === z.ZodIssueCode.invalid_type &&
+          issue.received === "undefined"
+        ) {
+          return `${path} is required`;
+        }
+        if (
+          path.endsWith(".type") &&
+          issue.code === z.ZodIssueCode.invalid_enum_value
+        ) {
+          if (path === "theme.background.type") {
+            return 'theme.background.type must be "solid", "gradient", or "image"';
+          }
+          if (path === "status.plugin") {
+            return `status.plugin must be one of: ${issue.options.join(", ")}`;
+          }
+          if (path.endsWith(".type")) {
+            return `${path} must be "text" or "icon"`;
+          }
+        }
+        if (issue.message && path !== "config") {
+          return `${path} ${issue.message}`;
+        }
+        return issue.message || `${path} is invalid`;
+      }),
+    ),
+  ];
 }
 
 export function validateConfig(config: unknown): AppConfig {
   const result = appConfigSchema.safeParse(config);
   if (!result.success) {
     const messages = formatZodError(result.error);
-    throw new Error(`Invalid config:\n- ${messages.join('\n- ')}`);
+    throw new Error(`Invalid config:\n- ${messages.join("\n- ")}`);
   }
   return result.data;
 }

@@ -20,4 +20,4 @@ export type {
   TextNavLink,
   ThemeBackground,
   ThemeConfig,
-} from '../lib/config-schema';
+} from "../lib/config-schema";

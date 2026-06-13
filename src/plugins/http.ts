@@ -1,18 +1,20 @@
-import type { HttpStatusOptions, StatusOptions } from '../types/config';
-import type { StatusResult } from '../types/plugins';
+import type { HttpStatusOptions, StatusOptions } from "../types/config";
+import type { StatusResult } from "../types/plugins";
 
 function asHttpOptions(options: StatusOptions): HttpStatusOptions {
-  if (!('url' in options) || typeof options.url !== 'string' || !options.url) {
+  if (!("url" in options) || typeof options.url !== "string" || !options.url) {
     throw new Error('http status plugin requires a "url" option');
   }
   return options as HttpStatusOptions;
 }
 
-export async function getStatus(options: StatusOptions = {}): Promise<StatusResult> {
+export async function getStatus(
+  options: StatusOptions = {},
+): Promise<StatusResult> {
   const {
     url,
-    onlineField = 'online',
-    playersField = 'players',
+    onlineField = "online",
+    playersField = "players",
     timeout = 5000,
   } = asHttpOptions(options);
 

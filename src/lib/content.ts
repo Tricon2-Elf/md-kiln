@@ -1,25 +1,26 @@
-import fs from 'fs/promises';
-import path from 'path';
-import matter from 'gray-matter';
-import { CONFIG_PATH, CONTENT_DIR, POSTS_DIR } from '../paths';
-import { renderMarkdown, normalizeImagePath } from './utils';
-import { validateConfig } from './config-schema';
-import { parseTagDef } from './tags';
-import type { AppConfig } from './config-schema';
+import fs from "fs/promises";
+import path from "path";
+import matter from "gray-matter";
+import { CONFIG_PATH, CONTENT_DIR, POSTS_DIR } from "../paths";
+import { renderMarkdown, normalizeImagePath } from "./utils";
+import { validateConfig } from "./config-schema";
+import { parseTagDef } from "./tags";
+import type { AppConfig } from "./config-schema";
 import type {
   ContentPage,
   FrontmatterResult,
   ParsedTag,
   Post,
   PostSummary,
-} from '../types/content';
+} from "../types/content";
 
 let config: AppConfig | undefined;
 
 function stringifyFrontmatterValue(value: unknown): string {
-  if (value === null || value === undefined) return '';
-  if (typeof value === 'string') return value;
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (value === null || value === undefined) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean")
+    return String(value);
   if (value instanceof Date) return value.toISOString();
   return String(value);
 }
@@ -38,11 +39,11 @@ function parseFrontmatter(content: string): FrontmatterResult {
 function resolvePostTag(tagKey: string | undefined): ParsedTag {
   const tags = config!.posts.tags;
   const defaultKey = config!.posts.defaultTag;
-  const key = (tagKey || defaultKey || '').trim().toLowerCase();
+  const key = (tagKey || defaultKey || "").trim().toLowerCase();
 
   if (!key || !tags[key]) {
-    const valid = Object.keys(tags).join(', ');
-    const slug = tagKey ? `"${tagKey}"` : '(empty)';
+    const valid = Object.keys(tags).join(", ");
+    const slug = tagKey ? `"${tagKey}"` : "(empty)";
     throw new Error(`Unknown post tag ${slug}. Valid tags: ${valid}`);
   }
 
@@ -62,12 +63,12 @@ function parsePost(raw: string, slug: string): Post {
 
   return {
     slug,
-    title: data.title || 'Untitled',
-    date: data.date || '',
+    title: data.title || "Untitled",
+    date: data.date || "",
     tag: label,
     tagKey: key,
     tagColor: color,
-    excerpt: data.excerpt || '',
+    excerpt: data.excerpt || "",
     image: normalizeImagePath(data.image),
     body,
     html: renderMarkdown(body),
@@ -75,7 +76,7 @@ function parsePost(raw: string, slug: string): Post {
 }
 
 export async function loadConfig(): Promise<AppConfig> {
-  const raw = await fs.readFile(CONFIG_PATH, 'utf8');
+  const raw = await fs.readFile(CONFIG_PATH, "utf8");
   const parsed: unknown = JSON.parse(raw);
   config = validateConfig(parsed);
   return config;
@@ -83,7 +84,7 @@ export async function loadConfig(): Promise<AppConfig> {
 
 export function getConfig(): AppConfig {
   if (!config) {
-    throw new Error('Config not loaded. Call loadConfig() first.');
+    throw new Error("Config not loaded. Call loadConfig() first.");
   }
   return config;
 }
@@ -103,9 +104,9 @@ export async function loadPosts(): Promise<PostSummary[]> {
   }
 
   const posts: PostSummary[] = [];
-  for (const file of files.filter((f) => f.endsWith('.md'))) {
-    const slug = file.replace(/\.md$/, '');
-    const raw = await fs.readFile(path.join(POSTS_DIR, file), 'utf8');
+  for (const file of files.filter((f) => f.endsWith(".md"))) {
+    const slug = file.replace(/\.md$/, "");
+    const raw = await fs.readFile(path.join(POSTS_DIR, file), "utf8");
     const post = parsePost(raw, slug);
     posts.push({
       slug: post.slug,
@@ -128,7 +129,7 @@ export async function loadPost(slug: string): Promise<Post | null> {
   if (!/^[a-z0-9-]+$/i.test(slug)) return null;
 
   try {
-    const raw = await fs.readFile(path.join(POSTS_DIR, `${slug}.md`), 'utf8');
+    const raw = await fs.readFile(path.join(POSTS_DIR, `${slug}.md`), "utf8");
     return parsePost(raw, slug);
   } catch {
     return null;
@@ -139,7 +140,7 @@ export async function loadContent(slug: string): Promise<ContentPage | null> {
   if (!/^[a-z0-9-]+$/i.test(slug)) return null;
 
   try {
-    const raw = await fs.readFile(path.join(CONTENT_DIR, `${slug}.md`), 'utf8');
+    const raw = await fs.readFile(path.join(CONTENT_DIR, `${slug}.md`), "utf8");
     const { data, content } = parseFrontmatter(raw);
     const body = content.trim();
     return {
@@ -157,7 +158,9 @@ export async function loadContent(slug: string): Promise<ContentPage | null> {
 export async function listContentSlugs(): Promise<string[]> {
   try {
     const files = await fs.readdir(CONTENT_DIR);
-    return files.filter((f) => f.endsWith('.md')).map((f) => f.replace(/\.md$/, ''));
+    return files
+      .filter((f) => f.endsWith(".md"))
+      .map((f) => f.replace(/\.md$/, ""));
   } catch {
     return [];
   }

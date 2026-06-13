@@ -1,8 +1,14 @@
-import path from 'path';
-import chokidar from 'chokidar';
-import { CONFIG_PATH, CONTENT_DIR, POSTS_DIR, ASSETS_DIR, VIEWS_DIR } from '../paths';
-import { buildSite } from './build';
-import type { BuildResult, BuildTrigger } from '../types/build';
+import path from "path";
+import chokidar from "chokidar";
+import {
+  CONFIG_PATH,
+  CONTENT_DIR,
+  POSTS_DIR,
+  ASSETS_DIR,
+  VIEWS_DIR,
+} from "../paths";
+import { buildSite } from "./build";
+import type { BuildResult, BuildTrigger } from "../types/build";
 
 const DEBOUNCE_MS = 300;
 
@@ -12,10 +18,10 @@ interface WatchTarget {
 }
 
 const WATCH_TARGETS: WatchTarget[] = [
-  { label: 'posts', dir: POSTS_DIR },
-  { label: 'content', dir: CONTENT_DIR },
-  { label: 'templates', dir: VIEWS_DIR },
-  { label: 'assets', dir: ASSETS_DIR },
+  { label: "posts", dir: POSTS_DIR },
+  { label: "content", dir: CONTENT_DIR },
+  { label: "templates", dir: VIEWS_DIR },
+  { label: "assets", dir: ASSETS_DIR },
 ];
 
 let rebuildTimer: ReturnType<typeof setTimeout> | undefined;
@@ -29,7 +35,7 @@ function shouldRebuild(filename: string | null | undefined): boolean {
 }
 
 function formatTrigger(trigger: BuildTrigger | null): string {
-  if (!trigger) return 'unknown';
+  if (!trigger) return "unknown";
   const { label, file } = trigger;
   return file ? `${label}: ${file}` : label;
 }
@@ -44,25 +50,30 @@ function formatBuildStats(result: BuildResult): string {
   const pct = result.rawBytes ? Math.round((saved / result.rawBytes) * 100) : 0;
   const minifyNote = result.minified
     ? `, ${formatBytes(saved)} saved (${pct}%)`
-    : ', minify disabled';
+    : ", minify disabled";
   return `${result.count} pages in ${formatBytes(result.outBytes)}${minifyNote}`;
 }
 
 function resolveTrigger(filePath: string): BuildTrigger {
   if (filePath === CONFIG_PATH) {
-    return { label: 'config', file: filePath };
+    return { label: "config", file: filePath };
   }
 
   for (const target of WATCH_TARGETS) {
-    if (filePath === target.dir || filePath.startsWith(`${target.dir}${path.sep}`)) {
+    if (
+      filePath === target.dir ||
+      filePath.startsWith(`${target.dir}${path.sep}`)
+    ) {
       return { label: target.label, file: filePath };
     }
   }
 
-  return { label: 'unknown', file: filePath };
+  return { label: "unknown", file: filePath };
 }
 
-export async function runBuild(trigger: BuildTrigger = { label: 'manual' }): Promise<void> {
+export async function runBuild(
+  trigger: BuildTrigger = { label: "manual" },
+): Promise<void> {
   if (rebuilding) {
     rebuildQueued = true;
     pendingTrigger = trigger;
@@ -86,7 +97,7 @@ export async function runBuild(trigger: BuildTrigger = { label: 'manual' }): Pro
 
     if (rebuildQueued) {
       rebuildQueued = false;
-      const next = pendingTrigger ?? { label: 'queued changes' };
+      const next = pendingTrigger ?? { label: "queued changes" };
       pendingTrigger = null;
       void runBuild(next);
     }
@@ -95,7 +106,9 @@ export async function runBuild(trigger: BuildTrigger = { label: 'manual' }): Pro
 
 function scheduleRebuild(trigger: BuildTrigger): void {
   clearTimeout(rebuildTimer);
-  console.log(`Change detected (${formatTrigger(trigger)}) — rebuild scheduled`);
+  console.log(
+    `Change detected (${formatTrigger(trigger)}) — rebuild scheduled`,
+  );
 
   rebuildTimer = setTimeout(() => {
     void runBuild(trigger);
@@ -103,9 +116,12 @@ function scheduleRebuild(trigger: BuildTrigger): void {
 }
 
 export function startWatcher(): void {
-  console.log('Watching for changes:');
+  console.log("Watching for changes:");
 
-  const watchPaths = [...WATCH_TARGETS.map((target) => target.dir), CONFIG_PATH];
+  const watchPaths = [
+    ...WATCH_TARGETS.map((target) => target.dir),
+    CONFIG_PATH,
+  ];
   for (const target of WATCH_TARGETS) {
     console.log(`  - ${target.label}: ${target.dir}`);
   }
@@ -123,12 +139,12 @@ export function startWatcher(): void {
     },
   });
 
-  watcher.on('all', (_event, filePath) => {
+  watcher.on("all", (_event, filePath) => {
     scheduleRebuild(resolveTrigger(filePath));
   });
 
-  watcher.on('error', (err) => {
+  watcher.on("error", (err) => {
     const message = err instanceof Error ? err.message : String(err);
-    console.warn('Watcher error:', message);
+    console.warn("Watcher error:", message);
   });
 }

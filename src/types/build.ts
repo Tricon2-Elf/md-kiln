@@ -1,7 +1,7 @@
-import type { AppConfig } from './config';
-import type { PostSummary } from './content';
-import type { ResolvedNavLink } from './nav';
-import type { ThemeVars } from './theme';
+import type { AppConfig } from "./config";
+import type { PostSummary } from "./content";
+import type { ResolvedNavLink } from "./nav";
+import type { ThemeVars } from "./theme";
 
 export interface BuildResult {
   count: number;
@@ -33,7 +33,7 @@ export interface TemplateLocals {
   navLinks: ResolvedNavLink[];
   activePath?: string | null;
   posts?: PostSummary[];
-  article?: import('./content').Post | import('./content').ContentPage;
+  article?: import("./content").Post | import("./content").ContentPage;
   showMeta?: boolean;
   title?: string;
 }

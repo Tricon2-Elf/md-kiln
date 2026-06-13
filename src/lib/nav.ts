@@ -1,16 +1,16 @@
-import fs from 'fs/promises';
-import path from 'path';
-import crypto from 'crypto';
-import { ICON_CACHE_DIR, LEGACY_ICON_CACHE_DIR } from '../paths';
-import { isRemoteUrl, normalizeLocalPath } from './utils';
-import type { IconNavLink, NavLink } from './config-schema';
-import type { CachedIconResult, ResolvedNavLink } from '../types/nav';
+import fs from "fs/promises";
+import path from "path";
+import crypto from "crypto";
+import { ICON_CACHE_DIR, LEGACY_ICON_CACHE_DIR } from "../paths";
+import { isRemoteUrl, normalizeLocalPath } from "./utils";
+import type { IconNavLink, NavLink } from "./config-schema";
+import type { CachedIconResult, ResolvedNavLink } from "../types/nav";
 
 const iconCache = new Map<string, string>();
 
 function normalizePath(pathname: string): string {
-  if (!pathname || pathname === '/') return '/';
-  return pathname.replace(/\/$/, '');
+  if (!pathname || pathname === "/") return "/";
+  return pathname.replace(/\/$/, "");
 }
 
 function isActive(href: string, activePath: string | null): boolean {
@@ -19,11 +19,19 @@ function isActive(href: string, activePath: string | null): boolean {
 }
 
 function cacheFilename(url: string): string {
-  const hash = crypto.createHash('sha256').update(url).digest('hex').slice(0, 10);
+  const hash = crypto
+    .createHash("sha256")
+    .update(url)
+    .digest("hex")
+    .slice(0, 10);
   return `icon-${hash}.svg`;
 }
 
-function cachePaths(url: string): { filename: string; filePath: string; publicPath: string } {
+function cachePaths(url: string): {
+  filename: string;
+  filePath: string;
+  publicPath: string;
+} {
   const filename = cacheFilename(url);
   return {
     filename,
@@ -50,7 +58,7 @@ async function fetchSvg(url: string): Promise<string> {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const text = await res.text();
-    if (!/<svg[\s>]/i.test(text)) throw new Error('response is not SVG');
+    if (!/<svg[\s>]/i.test(text)) throw new Error("response is not SVG");
 
     return text;
   } finally {
@@ -58,8 +66,15 @@ async function fetchSvg(url: string): Promise<string> {
   }
 }
 
-async function adoptLegacyCache(url: string, filePath: string): Promise<boolean> {
-  const hash = crypto.createHash('sha256').update(url).digest('hex').slice(0, 10);
+async function adoptLegacyCache(
+  url: string,
+  filePath: string,
+): Promise<boolean> {
+  const hash = crypto
+    .createHash("sha256")
+    .update(url)
+    .digest("hex")
+    .slice(0, 10);
   let entries: string[];
   try {
     entries = await fs.readdir(ICON_CACHE_DIR);
@@ -68,7 +83,8 @@ async function adoptLegacyCache(url: string, filePath: string): Promise<boolean>
   }
 
   const legacy = entries.find(
-    (entry) => entry.endsWith(`-${hash}.svg`) && entry !== path.basename(filePath),
+    (entry) =>
+      entry.endsWith(`-${hash}.svg`) && entry !== path.basename(filePath),
   );
   if (!legacy) return false;
 
@@ -76,28 +92,31 @@ async function adoptLegacyCache(url: string, filePath: string): Promise<boolean>
   return true;
 }
 
-async function getOrDownloadIcon(url: string, label: string): Promise<CachedIconResult> {
+async function getOrDownloadIcon(
+  url: string,
+  label: string,
+): Promise<CachedIconResult> {
   await fs.mkdir(ICON_CACHE_DIR, { recursive: true });
   const { filePath, publicPath } = cachePaths(url);
-  const forceRefresh = process.env.NAV_ICONS_REFRESH === 'true';
+  const forceRefresh = process.env.NAV_ICONS_REFRESH === "true";
 
   if (!forceRefresh && (await fileExists(filePath))) {
-    return { publicPath, source: 'cache' };
+    return { publicPath, source: "cache" };
   }
 
   if (!forceRefresh && (await adoptLegacyCache(url, filePath))) {
-    return { publicPath, source: 'cache' };
+    return { publicPath, source: "cache" };
   }
 
   try {
     const svg = await fetchSvg(url);
     await fs.writeFile(filePath, svg);
-    return { publicPath, source: 'download' };
+    return { publicPath, source: "download" };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (await fileExists(filePath)) {
       console.warn(`Using cached nav icon for "${label}" (${message})`);
-      return { publicPath, source: 'stale' };
+      return { publicPath, source: "stale" };
     }
     throw err;
   }
@@ -105,7 +124,7 @@ async function getOrDownloadIcon(url: string, label: string): Promise<CachedIcon
 
 async function pruneStaleIcons(activeUrls: string[]): Promise<void> {
   const activeFiles = new Set(activeUrls.map(cacheFilename));
-  activeFiles.add('.gitkeep');
+  activeFiles.add(".gitkeep");
 
   let entries: string[];
   try {
@@ -133,7 +152,7 @@ async function migratePublicIconCache(): Promise<void> {
   }
 
   for (const entry of entries) {
-    if (!entry.endsWith('.svg')) continue;
+    if (!entry.endsWith(".svg")) continue;
     const dest = path.join(ICON_CACHE_DIR, entry);
     if (await fileExists(dest)) continue;
     await fs.copyFile(path.join(LEGACY_ICON_CACHE_DIR, entry), dest);
@@ -141,7 +160,7 @@ async function migratePublicIconCache(): Promise<void> {
 }
 
 function isIconNavLink(link: NavLink): link is IconNavLink {
-  return link.type === 'icon';
+  return link.type === "icon";
 }
 
 export async function prepareNavIcons(links: NavLink[] = []): Promise<void> {
@@ -158,19 +177,25 @@ export async function prepareNavIcons(links: NavLink[] = []): Promise<void> {
 
   for (const link of remoteLinks) {
     try {
-      const { publicPath, source } = await getOrDownloadIcon(link.icon, link.label || 'icon');
+      const { publicPath, source } = await getOrDownloadIcon(
+        link.icon,
+        link.label || "icon",
+      );
       iconCache.set(link.icon, publicPath);
-      if (source === 'download') downloaded += 1;
-      if (source === 'cache') cached += 1;
+      if (source === "download") downloaded += 1;
+      if (source === "cache") cached += 1;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      console.warn(`Failed to cache nav icon "${link.label}" from ${link.icon}: ${message}`);
+      console.warn(
+        `Failed to cache nav icon "${link.label}" from ${link.icon}: ${message}`,
+      );
     }
   }
 
   await pruneStaleIcons(remoteLinks.map((link) => link.icon));
 
-  if (downloaded > 0) console.log(`Downloaded ${downloaded} remote nav icon(s)`);
+  if (downloaded > 0)
+    console.log(`Downloaded ${downloaded} remote nav icon(s)`);
   if (cached > 0) console.log(`Reused ${cached} cached nav icon(s)`);
 }
 
@@ -194,13 +219,13 @@ export function getNavLinks(
         active: isActive(link.href, activePath),
       };
 
-      if (link.type === 'icon') {
+      if (link.type === "icon") {
         const iconSrc = resolveIconSrc(link.icon?.trim());
         if (!iconSrc) return null;
-        return { type: 'icon', iconSrc, ...base };
+        return { type: "icon", iconSrc, ...base };
       }
 
-      return { type: 'text', ...base };
+      return { type: "text", ...base };
     })
     .filter((link): link is ResolvedNavLink => link !== null);
 }

@@ -1,4 +1,4 @@
-declare module 'html-minifier-terser' {
+declare module "html-minifier-terser" {
   export interface Options {
     collapseWhitespace?: boolean;
     conservativeCollapse?: boolean;

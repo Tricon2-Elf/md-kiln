@@ -22,8 +22,11 @@
   --glow-blue: rgba(43, 127, 212, 0.3);
   --online: #16a34a;
   --offline: #dc2626;
-  --font-display: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 }
 
 html {
@@ -38,7 +41,10 @@ body {
   font-family: var(--font-body);
   color: var(--text-primary);
   background-color: var(--page-bg-color, var(--bg-fallback));
-  background-image: var(--page-bg-image, linear-gradient(to bottom, #35b2f5, #ffffff));
+  background-image: var(
+    --page-bg-image,
+    linear-gradient(to bottom, #35b2f5, #ffffff)
+  );
   background-repeat: var(--page-bg-repeat, no-repeat);
   background-position: var(--page-bg-position, center center);
   background-size: var(--page-bg-size, auto);
@@ -89,7 +95,9 @@ body {
   text-decoration: none;
   padding: 0.5rem 1rem;
   border-radius: 999px;
-  transition: color 0.2s, background 0.2s;
+  transition:
+    color 0.2s,
+    background 0.2s;
 }
 
 .navbar__link:hover,
@@ -142,7 +150,11 @@ body {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 2rem;
-  background: linear-gradient(135deg, var(--accent-blue-deep), var(--accent-sky));
+  background: linear-gradient(
+    135deg,
+    var(--accent-blue-deep),
+    var(--accent-sky)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -167,7 +179,11 @@ body {
   padding: 0;
   backdrop-filter: blur(8px);
   box-shadow: 0 4px 20px var(--shadow);
-  transition: transform 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    background 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
   overflow: hidden;
 }
 
@@ -341,7 +357,11 @@ body {
 
 .sidebar__card--join {
   border-color: rgba(43, 127, 212, 0.35);
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(230, 245, 255, 0.88));
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.92),
+    rgba(230, 245, 255, 0.88)
+  );
 }
 
 .sidebar__sparkle {
@@ -355,8 +375,15 @@ body {
 }
 
 @keyframes sparkle {
-  0%, 100% { opacity: 0.5; transform: rotate(0deg) scale(1); }
-  50% { opacity: 1; transform: rotate(20deg) scale(1.1); }
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: rotate(20deg) scale(1.1);
+  }
 }
 
 .sidebar__heading {
@@ -386,9 +413,15 @@ body {
   cursor: pointer;
   text-decoration: none;
   color: #fff;
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-deep));
+  background: linear-gradient(
+    135deg,
+    var(--accent-blue),
+    var(--accent-blue-deep)
+  );
   box-shadow: 0 4px 20px var(--glow-blue);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .btn-join:hover {

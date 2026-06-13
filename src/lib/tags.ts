@@ -1,13 +1,13 @@
-export const DEFAULT_TAG_COLOR = 'steelblue';
+export const DEFAULT_TAG_COLOR = "steelblue";
 
 const NAMED_COLOR_PATTERN = /^[a-z][a-z0-9-]*$/;
 const BLOCKED_COLORS = new Set([
-  'transparent',
-  'currentcolor',
-  'inherit',
-  'initial',
-  'unset',
-  'revert',
+  "transparent",
+  "currentcolor",
+  "inherit",
+  "initial",
+  "unset",
+  "revert",
 ]);
 
 function normalizeNamedColor(color: string): string {
@@ -25,18 +25,18 @@ export interface ParsedTagDef {
 }
 
 export function parseTagDef(def: unknown): ParsedTagDef | null {
-  if (typeof def === 'string') {
+  if (typeof def === "string") {
     return { label: def, color: DEFAULT_TAG_COLOR };
   }
 
-  if (def && typeof def === 'object' && 'label' in def) {
+  if (def && typeof def === "object" && "label" in def) {
     const record = def as { label: unknown; color?: unknown };
-    if (typeof record.label !== 'string') {
+    if (typeof record.label !== "string") {
       return null;
     }
 
     const color =
-      typeof record.color === 'string'
+      typeof record.color === "string"
         ? normalizeNamedColor(record.color)
         : DEFAULT_TAG_COLOR;
 

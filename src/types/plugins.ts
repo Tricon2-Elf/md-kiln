@@ -1,4 +1,4 @@
-import type { StatusOptions } from './config';
+import type { StatusOptions } from "./config";
 
 export interface StatusMetrics {
   players: number;

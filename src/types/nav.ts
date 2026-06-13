@@ -6,17 +6,17 @@ export interface NavLinkBase {
 }
 
 export interface ResolvedTextNavLink extends NavLinkBase {
-  type: 'text';
+  type: "text";
 }
 
 export interface ResolvedIconNavLink extends NavLinkBase {
-  type: 'icon';
+  type: "icon";
   iconSrc: string;
 }
 
 export type ResolvedNavLink = ResolvedTextNavLink | ResolvedIconNavLink;
 
-export type IconCacheSource = 'cache' | 'download' | 'stale';
+export type IconCacheSource = "cache" | "download" | "stale";
 
 export interface CachedIconResult {
   publicPath: string;

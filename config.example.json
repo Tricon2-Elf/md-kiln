@@ -30,7 +30,12 @@
     "links": [
       { "type": "text", "label": "Home", "href": "/" },
       { "type": "text", "label": "About", "href": "/about" },
-      { "type": "icon", "label": "Github", "href": "https://github.com/you", "icon": "/img/github.svg" }
+      {
+        "type": "icon",
+        "label": "Github",
+        "href": "https://github.com/you",
+        "icon": "/img/github.svg"
+      }
     ]
   },
   "sidebar": {

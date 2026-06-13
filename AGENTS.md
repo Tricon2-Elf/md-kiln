@@ -26,45 +26,45 @@ build/            (compiled JS run by Node)
 
 ## Key files
 
-| Path | Role |
-|------|------|
-| `src/server.ts` | Express entry point; starts build + watcher |
-| `src/scripts/build.ts` | One-shot static build CLI |
-| `src/paths.ts` | Project-root path constants (`CONFIG_PATH`, `OUTPUT_DIR`, etc.) |
-| `src/lib/content.ts` | Config loading (with validation), frontmatter, markdown file reads |
-| `src/lib/build.ts` | Pre-renders pages and feeds to `dist/` |
-| `src/lib/watch.ts` | File watcher with debounced rebuilds and logging |
-| `src/lib/utils.ts` | Markdown, minify, theme vars, dates, path helpers |
-| `src/lib/nav.ts` | Nav link resolution and remote SVG caching |
-| `src/lib/feeds.ts` | RSS (`feed.xml` via [`feed`](https://www.npmjs.com/package/feed)) and sitemap (`sitemap.xml` via [`sitemap`](https://www.npmjs.com/package/sitemap)) |
-| `src/lib/config-schema.ts` | Config validation ([Zod](https://zod.dev/)) and inferred config types |
-| `src/lib/tags.ts` | Post tag parsing and CSS named-color validation |
-| `src/types/` | Shared TypeScript types (`content`, `nav`, `plugins`, `build`, `theme`; config types re-exported from `config-schema.ts`) |
-| `tsconfig.json` | TypeScript compiler options (`strict: true`) |
-| `config.example.json` | Example config for new deployments |
-| `views/` | EJS templates; use partials for shared layout |
-| `src/plugins/` | Status plugins exporting `getStatus(options)` |
-| `assets/js/status.js` | Client-side status widget (plain JS, copied to `dist/`) |
+| Path                       | Role                                                                                                                                                 |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/server.ts`            | Express entry point; starts build + watcher                                                                                                          |
+| `src/scripts/build.ts`     | One-shot static build CLI                                                                                                                            |
+| `src/paths.ts`             | Project-root path constants (`CONFIG_PATH`, `OUTPUT_DIR`, etc.)                                                                                      |
+| `src/lib/content.ts`       | Config loading (with validation), frontmatter, markdown file reads                                                                                   |
+| `src/lib/build.ts`         | Pre-renders pages and feeds to `dist/`                                                                                                               |
+| `src/lib/watch.ts`         | File watcher with debounced rebuilds and logging                                                                                                     |
+| `src/lib/utils.ts`         | Markdown, minify, theme vars, dates, path helpers                                                                                                    |
+| `src/lib/nav.ts`           | Nav link resolution and remote SVG caching                                                                                                           |
+| `src/lib/feeds.ts`         | RSS (`feed.xml` via [`feed`](https://www.npmjs.com/package/feed)) and sitemap (`sitemap.xml` via [`sitemap`](https://www.npmjs.com/package/sitemap)) |
+| `src/lib/config-schema.ts` | Config validation ([Zod](https://zod.dev/)) and inferred config types                                                                                |
+| `src/lib/tags.ts`          | Post tag parsing and CSS named-color validation                                                                                                      |
+| `src/types/`               | Shared TypeScript types (`content`, `nav`, `plugins`, `build`, `theme`; config types re-exported from `config-schema.ts`)                            |
+| `tsconfig.json`            | TypeScript compiler options (`strict: true`)                                                                                                         |
+| `config.example.json`      | Example config for new deployments                                                                                                                   |
+| `views/`                   | EJS templates; use partials for shared layout                                                                                                        |
+| `src/plugins/`             | Status plugins exporting `getStatus(options)`                                                                                                        |
+| `assets/js/status.js`      | Client-side status widget (plain JS, copied to `dist/`)                                                                                              |
 
 ## npm scripts
 
-| Command | What it does |
-|---------|----------------|
-| `npm run compile` | `tsc` → `build/` |
-| `npm run build` | compile + one-shot static site build |
-| `npm run start` | `node build/server.js` |
-| `npm run typecheck` | type-check without emit |
+| Command             | What it does                         |
+| ------------------- | ------------------------------------ |
+| `npm run compile`   | `tsc` → `build/`                     |
+| `npm run build`     | compile + one-shot static site build |
+| `npm run start`     | `node build/server.js`               |
+| `npm run typecheck` | type-check without emit              |
 
 ## Routing (generated output)
 
-| URL | Source |
-|-----|--------|
-| `/` | Home — post list from `posts/` |
-| `/news/:slug` | Post from `posts/:slug.md` |
-| `/:slug` | Page from `content/:slug.md` if it exists |
-| `/feed.xml` | RSS feed (build output) |
-| `/sitemap.xml` | Sitemap (build output) |
-| unknown paths | Falls back to home (`index.html`) |
+| URL            | Source                                    |
+| -------------- | ----------------------------------------- |
+| `/`            | Home — post list from `posts/`            |
+| `/news/:slug`  | Post from `posts/:slug.md`                |
+| `/:slug`       | Page from `content/:slug.md` if it exists |
+| `/feed.xml`    | RSS feed (build output)                   |
+| `/sitemap.xml` | Sitemap (build output)                    |
+| unknown paths  | Falls back to home (`index.html`)         |
 
 Do not add per-route hardcoding (e.g. a dedicated `/about` route). Content pages are discovered from `content/`.
 
@@ -87,10 +87,12 @@ Do not add per-route hardcoding (e.g. a dedicated `/about` route). Content pages
 Plugins in `src/plugins/` export:
 
 ```ts
-import type { StatusOptions } from '../types/config';
-import type { StatusResult } from '../types/plugins';
+import type { StatusOptions } from "../types/config";
+import type { StatusResult } from "../types/plugins";
 
-export async function getStatus(options: StatusOptions = {}): Promise<StatusResult> {
+export async function getStatus(
+  options: StatusOptions = {},
+): Promise<StatusResult> {
   return { online: true, metrics: { players: 0 } };
 }
 ```

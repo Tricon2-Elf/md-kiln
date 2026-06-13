@@ -3,6 +3,7 @@
 A small, config-driven site generator. Write content in Markdown, customise branding in `config.json`, and mdklin pre-renders everything to static HTML on startup and when files change.
 
 ## Screenshots
+
 <img width="2231" height="1293" alt="image" src="https://github.com/user-attachments/assets/3979d04f-85e3-40dc-9084-62d470b12817" />
 
 ## Quick start
@@ -131,7 +132,7 @@ Set `theme.background.type` to `gradient`, `solid`, or `image`:
 
 **Posts** (`posts/*.md`) use frontmatter:
 
-```markdown
+````markdown
 ---
 title: My Post
 date: 2026-05-10
@@ -151,11 +152,13 @@ excerpt: A short summary for the home page.
   }
 }
 ```
+````
 
 `color` is any [CSS named color](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/named-color) (e.g. `blue`, `coral`, `rebeccapurple`). The tag pill uses a lighter background and darker border derived from that color automatically.
 
 Post body in **markdown**.
-```
+
+````
 
 **Pages** (`content/*.md`) use frontmatter with at least a title:
 
@@ -165,22 +168,22 @@ title: About
 ---
 
 Page content here.
-```
+````
 
 ## Environment variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `3000` | Server port |
-| `CONFIG_PATH` | `./config.json` | Path to config file |
-| `POSTS_DIR` | `./posts` | News posts directory |
-| `CONTENT_DIR` | `./content` | Static pages directory |
-| `OUTPUT_DIR` | `./dist` | Build output (HTML, CSS, JS, cached icons) |
-| `PUBLIC_DIR` | `./public` | User-uploaded static assets (logos, images) |
-| `MINIFY` | enabled | Set to `false` to disable HTML minification |
-| `NAV_ICONS_REFRESH` | `false` | Set to `true` to re-download remote nav SVGs |
-| `SITE_URL` | `config.site.url` | Override site URL for RSS/sitemap |
-| `DOMAIN` | (Docker) empty → `:3000` | Public hostname for HTTPS in Docker; leave empty for local HTTP |
+| Variable            | Default                  | Description                                                     |
+| ------------------- | ------------------------ | --------------------------------------------------------------- |
+| `PORT`              | `3000`                   | Server port                                                     |
+| `CONFIG_PATH`       | `./config.json`          | Path to config file                                             |
+| `POSTS_DIR`         | `./posts`                | News posts directory                                            |
+| `CONTENT_DIR`       | `./content`              | Static pages directory                                          |
+| `OUTPUT_DIR`        | `./dist`                 | Build output (HTML, CSS, JS, cached icons)                      |
+| `PUBLIC_DIR`        | `./public`               | User-uploaded static assets (logos, images)                     |
+| `MINIFY`            | enabled                  | Set to `false` to disable HTML minification                     |
+| `NAV_ICONS_REFRESH` | `false`                  | Set to `true` to re-download remote nav SVGs                    |
+| `SITE_URL`          | `config.site.url`        | Override site URL for RSS/sitemap                               |
+| `DOMAIN`            | (Docker) empty → `:3000` | Public hostname for HTTPS in Docker; leave empty for local HTTP |
 
 ## Development note
 
