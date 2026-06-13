@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import matter from 'gray-matter';
 import { CONFIG_PATH, CONTENT_DIR, POSTS_DIR } from '../paths';
 import { renderMarkdown, normalizeImagePath } from './utils';
 import { validateConfig } from './config-schema';
@@ -15,21 +16,23 @@ import type {
 
 let config: AppConfig | undefined;
 
+function stringifyFrontmatterValue(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (value instanceof Date) return value.toISOString();
+  return String(value);
+}
+
 function parseFrontmatter(content: string): FrontmatterResult {
-  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n)?([\s\S]*)$/);
-  if (!match) return { data: {}, content };
+  const { data, content: body } = matter(content);
+  const fields: Record<string, string> = {};
 
-  const data: Record<string, string> = {};
-  const frontmatter = match[1];
-  const body = match[2];
-  if (!frontmatter) return { data: {}, content: body ?? content };
-
-  for (const line of frontmatter.split('\n')) {
-    const idx = line.indexOf(':');
-    if (idx === -1) continue;
-    data[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
+  for (const [key, value] of Object.entries(data)) {
+    fields[key] = stringifyFrontmatterValue(value);
   }
-  return { data, content: body ?? '' };
+
+  return { data: fields, content: body };
 }
 
 function resolvePostTag(tagKey: string | undefined): ParsedTag {

@@ -54,34 +54,46 @@ export async function minifyHtml(html: string): Promise<string> {
 
 export function normalizeImagePath(image: string | null | undefined): string | null {
   if (!image) return null;
-  if (image.startsWith('http://') || image.startsWith('https://')) return image;
-  if (image.startsWith('/')) return image;
-  return `/${image}`;
+
+  try {
+    const parsed = new URL(image, 'http://local.invalid');
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return image;
+    }
+  } catch {
+    // fall through to local path handling
+  }
+
+  return image.startsWith('/') ? image : `/${image}`;
 }
 
 export function normalizeLocalPath(value: string | null | undefined): string | null {
   if (!value) return null;
-  if (value.startsWith('http://') || value.startsWith('https://')) return null;
-  if (value.startsWith('/')) return value;
-  return `/${value}`;
+
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return null;
+    }
+  } catch {
+    // not an absolute URL — treat as local path
+  }
+
+  return value.startsWith('/') ? value : `/${value}`;
 }
 
 export function isRemoteUrl(value: string): boolean {
-  return /^https?:\/\//i.test(value);
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
 }
 
 export function getSiteUrl(config: AppConfig): string {
   const url = process.env.SITE_URL ?? config.site.url ?? 'http://localhost:3000';
-  return url.replace(/\/$/, '');
-}
-
-export function escapeXml(text: string): string {
-  return String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+  return new URL(url).origin;
 }
 
 export function getThemeVars(theme: AppConfig['theme'] = {}): ThemeVars {
