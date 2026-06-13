@@ -166,7 +166,9 @@ export async function buildSite(): Promise<BuildResult> {
   }
 
   await addFile('feed.xml', buildRssFeed({ config, posts }), { minify: false });
-  await addFile('sitemap.xml', buildSitemap({ config, posts, contentSlugs }), { minify: false });
+  await addFile('sitemap.xml', await buildSitemap({ config, posts, contentSlugs }), {
+    minify: false,
+  });
 
   return {
     count: pages.length,

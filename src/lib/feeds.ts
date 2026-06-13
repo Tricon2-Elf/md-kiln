@@ -1,5 +1,6 @@
+import { SitemapStream, streamToPromise } from 'sitemap';
 import { Feed } from 'feed';
-import { getSiteUrl, escapeXml } from './utils';
+import { getSiteUrl } from './utils';
 import type { AppConfig } from './config-schema';
 import type { PostSummary } from '../types/content';
 
@@ -10,8 +11,12 @@ function toIsoDate(dateStr?: string): string {
 
 function absoluteUrl(siteUrl: string, assetPath: string | null | undefined): string | undefined {
   if (!assetPath) return undefined;
-  if (/^https?:\/\//i.test(assetPath)) return assetPath;
-  return `${siteUrl}${assetPath.startsWith('/') ? assetPath : `/${assetPath}`}`;
+
+  try {
+    return new URL(assetPath, siteUrl).href;
+  } catch {
+    return undefined;
+  }
 }
 
 interface RssFeedInput {
@@ -57,34 +62,25 @@ export function buildRssFeed({ config, posts }: RssFeedInput): string {
   return feed.rss2();
 }
 
-export function buildSitemap({ config, posts, contentSlugs }: SitemapInput): string {
+export async function buildSitemap({ config, posts, contentSlugs }: SitemapInput): Promise<string> {
   const siteUrl = getSiteUrl(config);
   const buildDate = toIsoDate();
+  const stream = new SitemapStream({ hostname: siteUrl });
 
-  const urls = [
-    { loc: `${siteUrl}/`, lastmod: buildDate },
-    ...contentSlugs.map((slug) => ({
-      loc: `${siteUrl}/${slug}`,
-      lastmod: buildDate,
-    })),
-    ...posts.map((post) => ({
-      loc: `${siteUrl}/news/${post.slug}`,
+  stream.write({ url: '/', lastmod: buildDate });
+
+  for (const slug of contentSlugs) {
+    stream.write({ url: `/${slug}`, lastmod: buildDate });
+  }
+
+  for (const post of posts) {
+    stream.write({
+      url: `/news/${post.slug}`,
       lastmod: toIsoDate(post.date) || buildDate,
-    })),
-  ];
+    });
+  }
 
-  const body = urls
-    .map(
-      ({ loc, lastmod }) => `  <url>
-    <loc>${escapeXml(loc)}</loc>
-    <lastmod>${lastmod}</lastmod>
-  </url>`,
-    )
-    .join('\n');
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${body}
-</urlset>
-`;
+  stream.end();
+  const xml = await streamToPromise(stream);
+  return xml.toString();
 }

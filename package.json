@@ -17,8 +17,9 @@
     "feed": "^5.2.1",
     "helmet": "^8.2.0",
     "html-minifier-terser": "^7.2.0",
-    "marked": "^15.0.12"
-  },
+    "marked": "^15.0.12",
+    "sitemap": "^8.0.2"
+    },
   "devDependencies": {
     "@types/compression": "^1.7.5",
     "@types/ejs": "^3.1.5",

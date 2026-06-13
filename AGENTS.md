@@ -36,7 +36,7 @@ build/            (compiled JS run by Node)
 | `src/lib/watch.ts` | File watcher with debounced rebuilds and logging |
 | `src/lib/utils.ts` | Markdown, minify, theme vars, dates, path helpers |
 | `src/lib/nav.ts` | Nav link resolution and remote SVG caching |
-| `src/lib/feeds.ts` | RSS (`feed.xml` via [`feed`](https://www.npmjs.com/package/feed)) and sitemap (`sitemap.xml`) generation |
+| `src/lib/feeds.ts` | RSS (`feed.xml` via [`feed`](https://www.npmjs.com/package/feed)) and sitemap (`sitemap.xml` via [`sitemap`](https://www.npmjs.com/package/sitemap)) |
 | `src/lib/config-schema.ts` | Config validation ([Zod](https://zod.dev/)) and inferred config types |
 | `src/lib/tags.ts` | Post tag parsing and CSS named-color validation |
 | `src/types/` | Shared TypeScript types (`content`, `nav`, `plugins`, `build`, `theme`; config types re-exported from `config-schema.ts`) |
