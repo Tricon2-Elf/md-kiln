@@ -1,5 +1,5 @@
-import fs from 'fs';
 import path from 'path';
+import chokidar from 'chokidar';
 import { CONFIG_PATH, CONTENT_DIR, POSTS_DIR, ASSETS_DIR, VIEWS_DIR } from '../paths';
 import { buildSite } from './build';
 import type { BuildResult, BuildTrigger } from '../types/build';
@@ -48,6 +48,20 @@ function formatBuildStats(result: BuildResult): string {
   return `${result.count} pages in ${formatBytes(result.outBytes)}${minifyNote}`;
 }
 
+function resolveTrigger(filePath: string): BuildTrigger {
+  if (filePath === CONFIG_PATH) {
+    return { label: 'config', file: filePath };
+  }
+
+  for (const target of WATCH_TARGETS) {
+    if (filePath === target.dir || filePath.startsWith(`${target.dir}${path.sep}`)) {
+      return { label: target.label, file: filePath };
+    }
+  }
+
+  return { label: 'unknown', file: filePath };
+}
+
 export async function runBuild(trigger: BuildTrigger = { label: 'manual' }): Promise<void> {
   if (rebuilding) {
     rebuildQueued = true;
@@ -88,32 +102,33 @@ function scheduleRebuild(trigger: BuildTrigger): void {
   }, DEBOUNCE_MS);
 }
 
-function watchDir({ label, dir }: WatchTarget): void {
-  try {
-    fs.watch(dir, { recursive: true }, (_event, filename) => {
-      if (!shouldRebuild(filename)) return;
-
-      const file = filename ? path.join(dir, filename.toString()) : dir;
-      scheduleRebuild({ label, file });
-    });
-    console.log(`  - ${label}: ${dir}`);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.warn(`Could not watch ${label} (${dir}):`, message);
-  }
-}
-
 export function startWatcher(): void {
   console.log('Watching for changes:');
-  WATCH_TARGETS.forEach(watchDir);
 
-  try {
-    fs.watch(CONFIG_PATH, () => {
-      scheduleRebuild({ label: 'config', file: CONFIG_PATH });
-    });
-    console.log(`  - config: ${CONFIG_PATH}`);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.warn(`Could not watch config (${CONFIG_PATH}):`, message);
+  const watchPaths = [...WATCH_TARGETS.map((target) => target.dir), CONFIG_PATH];
+  for (const target of WATCH_TARGETS) {
+    console.log(`  - ${target.label}: ${target.dir}`);
   }
+  console.log(`  - config: ${CONFIG_PATH}`);
+
+  const watcher = chokidar.watch(watchPaths, {
+    ignoreInitial: true,
+    awaitWriteFinish: {
+      stabilityThreshold: 100,
+      pollInterval: 50,
+    },
+    ignored: (filePath, stats) => {
+      if (stats?.isDirectory()) return false;
+      return !shouldRebuild(path.basename(filePath));
+    },
+  });
+
+  watcher.on('all', (_event, filePath) => {
+    scheduleRebuild(resolveTrigger(filePath));
+  });
+
+  watcher.on('error', (err) => {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn('Watcher error:', message);
+  });
 }
