@@ -1,18 +1,31 @@
-const { Feed } = require('feed');
-const { getSiteUrl, escapeXml } = require('./utils');
+import { Feed } from 'feed';
+import { getSiteUrl, escapeXml } from './utils';
+import type { AppConfig } from '../types/config';
+import type { PostSummary } from '../types/content';
 
-function toIsoDate(dateStr) {
+function toIsoDate(dateStr?: string): string {
   const date = dateStr ? new Date(dateStr) : new Date();
   return date.toISOString().slice(0, 10);
 }
 
-function absoluteUrl(siteUrl, path) {
-  if (!path) return undefined;
-  if (/^https?:\/\//i.test(path)) return path;
-  return `${siteUrl}${path.startsWith('/') ? path : `/${path}`}`;
+function absoluteUrl(siteUrl: string, assetPath: string | null | undefined): string | undefined {
+  if (!assetPath) return undefined;
+  if (/^https?:\/\//i.test(assetPath)) return assetPath;
+  return `${siteUrl}${assetPath.startsWith('/') ? assetPath : `/${assetPath}`}`;
 }
 
-function buildRssFeed({ config, posts }) {
+interface RssFeedInput {
+  config: AppConfig;
+  posts: PostSummary[];
+}
+
+interface SitemapInput {
+  config: AppConfig;
+  posts: PostSummary[];
+  contentSlugs: string[];
+}
+
+export function buildRssFeed({ config, posts }: RssFeedInput): string {
   const siteUrl = getSiteUrl(config);
 
   const feed = new Feed({
@@ -44,7 +57,7 @@ function buildRssFeed({ config, posts }) {
   return feed.rss2();
 }
 
-function buildSitemap({ config, posts, contentSlugs }) {
+export function buildSitemap({ config, posts, contentSlugs }: SitemapInput): string {
   const siteUrl = getSiteUrl(config);
   const buildDate = toIsoDate();
 
@@ -75,5 +88,3 @@ ${body}
 </urlset>
 `;
 }
-
-module.exports = { buildRssFeed, buildSitemap };

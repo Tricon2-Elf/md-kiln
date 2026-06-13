@@ -1,48 +1,54 @@
-const fs = require('fs');
-const path = require('path');
-const { CONFIG_PATH, POSTS_DIR, CONTENT_DIR } = require('./content');
-const { buildSite } = require('./build');
+import fs from 'fs';
+import path from 'path';
+import { CONFIG_PATH, CONTENT_DIR, POSTS_DIR, ASSETS_DIR, VIEWS_DIR } from '../paths';
+import { buildSite } from './build';
+import type { BuildResult, BuildTrigger } from '../types/build';
 
-const VIEWS_DIR = path.join(__dirname, '..', 'views');
-const ASSETS_DIR = path.join(__dirname, '..', 'assets');
 const DEBOUNCE_MS = 300;
 
-const WATCH_TARGETS = [
+interface WatchTarget {
+  label: string;
+  dir: string;
+}
+
+const WATCH_TARGETS: WatchTarget[] = [
   { label: 'posts', dir: POSTS_DIR },
   { label: 'content', dir: CONTENT_DIR },
   { label: 'templates', dir: VIEWS_DIR },
   { label: 'assets', dir: ASSETS_DIR },
 ];
 
-let rebuildTimer;
+let rebuildTimer: ReturnType<typeof setTimeout> | undefined;
 let rebuilding = false;
 let rebuildQueued = false;
-let pendingTrigger = null;
+let pendingTrigger: BuildTrigger | null = null;
 
-function shouldRebuild(filename) {
+function shouldRebuild(filename: string | null | undefined): boolean {
   if (!filename) return true;
   return /\.(md|json|ejs|css|js)$/i.test(filename);
 }
 
-function formatTrigger(trigger) {
+function formatTrigger(trigger: BuildTrigger | null): string {
   if (!trigger) return 'unknown';
   const { label, file } = trigger;
   return file ? `${label}: ${file}` : label;
 }
 
-function formatBytes(bytes) {
+function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   return `${(bytes / 1024).toFixed(1)} KB`;
 }
 
-function formatBuildStats(result) {
+function formatBuildStats(result: BuildResult): string {
   const saved = result.rawBytes - result.outBytes;
   const pct = result.rawBytes ? Math.round((saved / result.rawBytes) * 100) : 0;
-  const minifyNote = result.minified ? `, ${formatBytes(saved)} saved (${pct}%)` : ', minify disabled';
+  const minifyNote = result.minified
+    ? `, ${formatBytes(saved)} saved (${pct}%)`
+    : ', minify disabled';
   return `${result.count} pages in ${formatBytes(result.outBytes)}${minifyNote}`;
 }
 
-async function runBuild(trigger = { label: 'manual' }) {
+export async function runBuild(trigger: BuildTrigger = { label: 'manual' }): Promise<void> {
   if (rebuilding) {
     rebuildQueued = true;
     pendingTrigger = trigger;
@@ -59,43 +65,45 @@ async function runBuild(trigger = { label: 'manual' }) {
     const ms = Date.now() - started;
     console.log(`Rebuild complete — ${formatBuildStats(result)} (${ms}ms)`);
   } catch (err) {
-    console.error(`Rebuild failed (${formatTrigger(trigger)}):`, err.message);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`Rebuild failed (${formatTrigger(trigger)}):`, message);
   } finally {
     rebuilding = false;
 
     if (rebuildQueued) {
       rebuildQueued = false;
-      const next = pendingTrigger || { label: 'queued changes' };
+      const next = pendingTrigger ?? { label: 'queued changes' };
       pendingTrigger = null;
-      runBuild(next);
+      void runBuild(next);
     }
   }
 }
 
-function scheduleRebuild(trigger) {
+function scheduleRebuild(trigger: BuildTrigger): void {
   clearTimeout(rebuildTimer);
   console.log(`Change detected (${formatTrigger(trigger)}) — rebuild scheduled`);
 
   rebuildTimer = setTimeout(() => {
-    runBuild(trigger);
+    void runBuild(trigger);
   }, DEBOUNCE_MS);
 }
 
-function watchDir({ label, dir }) {
+function watchDir({ label, dir }: WatchTarget): void {
   try {
     fs.watch(dir, { recursive: true }, (_event, filename) => {
       if (!shouldRebuild(filename)) return;
 
-      const file = filename ? path.join(dir, filename) : dir;
+      const file = filename ? path.join(dir, filename.toString()) : dir;
       scheduleRebuild({ label, file });
     });
     console.log(`  - ${label}: ${dir}`);
   } catch (err) {
-    console.warn(`Could not watch ${label} (${dir}):`, err.message);
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn(`Could not watch ${label} (${dir}):`, message);
   }
 }
 
-function startWatcher() {
+export function startWatcher(): void {
   console.log('Watching for changes:');
   WATCH_TARGETS.forEach(watchDir);
 
@@ -105,8 +113,7 @@ function startWatcher() {
     });
     console.log(`  - config: ${CONFIG_PATH}`);
   } catch (err) {
-    console.warn(`Could not watch config (${CONFIG_PATH}):`, err.message);
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn(`Could not watch config (${CONFIG_PATH}):`, message);
   }
 }
-
-module.exports = { runBuild, startWatcher };

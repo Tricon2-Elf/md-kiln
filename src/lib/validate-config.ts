@@ -1,50 +1,57 @@
-const Ajv = require('ajv');
-const { isValidNamedColor } = require('./tags');
-const schema = require('./config.schema.json');
+import Ajv, { type ErrorObject, type KeywordDefinition } from 'ajv';
+import { isValidNamedColor } from './tags';
+import type { AppConfig, PostsConfig } from '../types/config';
+import schema from './config.schema.json';
 
 const ajv = new Ajv({ allErrors: true, strict: false });
 
-ajv.addKeyword({
+const nonEmptyStringKeyword: KeywordDefinition = {
   keyword: 'nonEmptyString',
   type: 'string',
   schemaType: 'boolean',
-  validate(enabled, data) {
+  validate(enabled: boolean, data: unknown): boolean {
     return !enabled || (typeof data === 'string' && data.trim().length > 0);
   },
   error: { message: 'must not be empty' },
-});
+};
 
-ajv.addKeyword({
+const cssNamedColorKeyword: KeywordDefinition = {
   keyword: 'cssNamedColor',
   type: 'string',
   schemaType: 'boolean',
-  validate(enabled, data) {
-    return !enabled || isValidNamedColor(data);
+  validate(enabled: boolean, data: unknown): boolean {
+    return !enabled || (typeof data === 'string' && isValidNamedColor(data));
   },
   error: { message: 'must be a CSS named color (e.g. steelblue, seagreen)' },
-});
+};
 
-ajv.addKeyword({
+const validDefaultTagKeyword: KeywordDefinition = {
   keyword: 'validDefaultTag',
   type: 'object',
   schemaType: 'boolean',
-  validate(enabled, posts) {
-    if (!enabled || !posts) return true;
-    const defaultTag = posts.defaultTag?.trim().toLowerCase();
+  validate(enabled: boolean, posts: unknown): boolean {
+    if (!enabled || !posts || typeof posts !== 'object') return true;
+    const postsConfig = posts as PostsConfig;
+    const defaultTag = postsConfig.defaultTag?.trim().toLowerCase();
     if (!defaultTag) return false;
-    return posts.tags && Object.prototype.hasOwnProperty.call(posts.tags, defaultTag);
+    return Boolean(postsConfig.tags && Object.prototype.hasOwnProperty.call(postsConfig.tags, defaultTag));
   },
   error: { message: 'must reference a key in posts.tags' },
-});
+};
+
+ajv.addKeyword(nonEmptyStringKeyword);
+ajv.addKeyword(cssNamedColorKeyword);
+ajv.addKeyword(validDefaultTagKeyword);
 
 const validate = ajv.compile(schema);
 
-function jsonPath(instancePath) {
+function jsonPath(instancePath: string): string {
   return instancePath.replace(/^\//, '').replace(/\//g, '.') || 'config';
 }
 
-function formatError(err) {
+function formatError(err: ErrorObject): string {
   const path = jsonPath(err.instancePath);
+  const data = err.data as Record<string, unknown> | undefined;
 
   if (err.keyword === 'nonEmptyString') {
     return `${path} is required`;
@@ -55,7 +62,7 @@ function formatError(err) {
   }
 
   if (err.keyword === 'validDefaultTag') {
-    const tag = (err.data?.defaultTag || '').trim();
+    const tag = String(data?.defaultTag ?? '').trim();
     return `posts.defaultTag "${tag}" must be a key in posts.tags`;
   }
 
@@ -64,7 +71,7 @@ function formatError(err) {
   }
 
   if (err.keyword === 'required') {
-    const missing = err.params.missingProperty;
+    const missing = err.params.missingProperty as string;
     return `${path ? `${path}.` : ''}${missing} is required`;
   }
 
@@ -73,9 +80,11 @@ function formatError(err) {
       return 'theme.background.type must be "solid", "gradient", or "image"';
     }
     if (path === 'status.plugin') {
-      return `status.plugin must be one of: ${err.params.allowedValues.join(', ')}`;
+      const allowedValues = err.params.allowedValues as string[];
+      return `status.plugin must be one of: ${allowedValues.join(', ')}`;
     }
-    if (path.endsWith('.type') && err.params.allowedValues?.includes('text')) {
+    const allowedValues = err.params.allowedValues as string[] | undefined;
+    if (path.endsWith('.type') && allowedValues?.includes('text')) {
       return `${path} must be "text" or "icon"`;
     }
   }
@@ -97,11 +106,10 @@ function formatError(err) {
   return `${label} ${err.message}`;
 }
 
-function validateConfig(config) {
+export function validateConfig(config: unknown): asserts config is AppConfig {
   if (!validate(config)) {
-    const messages = [...new Set(validate.errors.map(formatError))];
+    const errors = validate.errors ?? [];
+    const messages = [...new Set(errors.map(formatError))];
     throw new Error(`Invalid config:\n- ${messages.join('\n- ')}`);
   }
 }
-
-module.exports = { validateConfig };

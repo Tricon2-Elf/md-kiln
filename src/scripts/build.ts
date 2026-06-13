@@ -1,12 +1,12 @@
-const { loadConfig } = require('../lib/content');
-const { buildSite } = require('../lib/build');
+import { loadConfig } from '../lib/content';
+import { buildSite } from '../lib/build';
 
-function formatBytes(bytes) {
+function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   return `${(bytes / 1024).toFixed(1)} KB`;
 }
 
-async function main() {
+async function main(): Promise<void> {
   const started = Date.now();
   await loadConfig();
   const result = await buildSite();
@@ -21,6 +21,7 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(err.message);
+  const message = err instanceof Error ? err.message : String(err);
+  console.error(message);
   process.exit(1);
 });

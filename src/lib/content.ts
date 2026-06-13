@@ -1,38 +1,40 @@
-const fs = require('fs').promises;
-const path = require('path');
-const { renderMarkdown } = require('./utils');
-const { validateConfig } = require('./validate-config');
-const { parseTagDef } = require('./tags');
+import fs from 'fs/promises';
+import path from 'path';
+import { CONFIG_PATH, CONTENT_DIR, POSTS_DIR } from '../paths';
+import { renderMarkdown, normalizeImagePath } from './utils';
+import { validateConfig } from './validate-config';
+import { parseTagDef } from './tags';
+import type { AppConfig } from '../types/config';
+import type {
+  ContentPage,
+  FrontmatterResult,
+  ParsedTag,
+  Post,
+  PostSummary,
+} from '../types/content';
 
-const CONFIG_PATH = process.env.CONFIG_PATH || path.join(__dirname, '..', 'config.json');
-const POSTS_DIR = process.env.POSTS_DIR || path.join(__dirname, '..', 'posts');
-const CONTENT_DIR = process.env.CONTENT_DIR || path.join(__dirname, '..', 'content');
+let config: AppConfig | undefined;
 
-let config;
-
-function parseFrontmatter(content) {
+function parseFrontmatter(content: string): FrontmatterResult {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n)?([\s\S]*)$/);
   if (!match) return { data: {}, content };
 
-  const data = {};
-  for (const line of match[1].split('\n')) {
+  const data: Record<string, string> = {};
+  const frontmatter = match[1];
+  const body = match[2];
+  if (!frontmatter) return { data: {}, content: body ?? content };
+
+  for (const line of frontmatter.split('\n')) {
     const idx = line.indexOf(':');
     if (idx === -1) continue;
     data[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
   }
-  return { data, content: match[2] };
+  return { data, content: body ?? '' };
 }
 
-function normalizeImagePath(image) {
-  if (!image) return null;
-  if (image.startsWith('http://') || image.startsWith('https://')) return image;
-  if (image.startsWith('/')) return image;
-  return `/${image}`;
-}
-
-function resolvePostTag(tagKey) {
-  const tags = config.posts?.tags || {};
-  const defaultKey = config.posts?.defaultTag;
+function resolvePostTag(tagKey: string | undefined): ParsedTag {
+  const tags = config!.posts.tags;
+  const defaultKey = config!.posts.defaultTag;
   const key = (tagKey || defaultKey || '').trim().toLowerCase();
 
   if (!key || !tags[key]) {
@@ -41,11 +43,16 @@ function resolvePostTag(tagKey) {
     throw new Error(`Unknown post tag ${slug}. Valid tags: ${valid}`);
   }
 
-  const { label, color } = parseTagDef(tags[key]);
+  const parsed = parseTagDef(tags[key]);
+  if (!parsed) {
+    throw new Error(`Invalid tag definition for "${key}"`);
+  }
+
+  const { label, color } = parsed;
   return { key, label, color };
 }
 
-function parsePost(raw, slug) {
+function parsePost(raw: string, slug: string): Post {
   const { data, content } = parseFrontmatter(raw);
   const body = content.trim();
   const { key, label, color } = resolvePostTag(data.tag);
@@ -64,30 +71,36 @@ function parsePost(raw, slug) {
   };
 }
 
-async function loadConfig() {
+export async function loadConfig(): Promise<AppConfig> {
   const raw = await fs.readFile(CONFIG_PATH, 'utf8');
-  config = JSON.parse(raw);
-  validateConfig(config);
+  const parsed: unknown = JSON.parse(raw);
+  validateConfig(parsed);
+  config = parsed;
   return config;
 }
 
-function getConfig() {
+export function getConfig(): AppConfig {
+  if (!config) {
+    throw new Error('Config not loaded. Call loadConfig() first.');
+  }
   return config;
 }
 
-function hasSidebar() {
-  return config.sidebar.cta.enabled || config.sidebar.status.enabled;
+export function hasSidebar(): boolean {
+  const sidebar = config?.sidebar;
+  if (!sidebar) return false;
+  return Boolean(sidebar.cta?.enabled || sidebar.status?.enabled);
 }
 
-async function loadPosts() {
-  let files;
+export async function loadPosts(): Promise<PostSummary[]> {
+  let files: string[];
   try {
     files = await fs.readdir(POSTS_DIR);
   } catch {
     return [];
   }
 
-  const posts = [];
+  const posts: PostSummary[] = [];
   for (const file of files.filter((f) => f.endsWith('.md'))) {
     const slug = file.replace(/\.md$/, '');
     const raw = await fs.readFile(path.join(POSTS_DIR, file), 'utf8');
@@ -104,10 +117,12 @@ async function loadPosts() {
     });
   }
 
-  return posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  return posts.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
 }
 
-async function loadPost(slug) {
+export async function loadPost(slug: string): Promise<Post | null> {
   if (!/^[a-z0-9-]+$/i.test(slug)) return null;
 
   try {
@@ -118,7 +133,7 @@ async function loadPost(slug) {
   }
 }
 
-async function loadContent(slug) {
+export async function loadContent(slug: string): Promise<ContentPage | null> {
   if (!/^[a-z0-9-]+$/i.test(slug)) return null;
 
   try {
@@ -137,7 +152,7 @@ async function loadContent(slug) {
   }
 }
 
-async function listContentSlugs() {
+export async function listContentSlugs(): Promise<string[]> {
   try {
     const files = await fs.readdir(CONTENT_DIR);
     return files.filter((f) => f.endsWith('.md')).map((f) => f.replace(/\.md$/, ''));
@@ -146,15 +161,4 @@ async function listContentSlugs() {
   }
 }
 
-module.exports = {
-  CONFIG_PATH,
-  POSTS_DIR,
-  CONTENT_DIR,
-  loadConfig,
-  getConfig,
-  hasSidebar,
-  loadPosts,
-  loadPost,
-  loadContent,
-  listContentSlugs,
-};
+export { CONFIG_PATH, POSTS_DIR, CONTENT_DIR };

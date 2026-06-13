@@ -1,10 +1,11 @@
-const fs = require('fs').promises;
-const path = require('path');
-const ejs = require('ejs');
-const { formatDate, minifyHtml, getThemeVars } = require('./utils');
-const { prepareNavIcons, getNavLinks } = require('./nav');
-const { buildRssFeed, buildSitemap } = require('./feeds');
-const {
+import fs from 'fs/promises';
+import path from 'path';
+import ejs from 'ejs';
+import { ASSETS_DIR, OUTPUT_DIR, VIEWS_DIR } from '../paths';
+import { formatDate, minifyHtml, getThemeVars } from './utils';
+import { prepareNavIcons, getNavLinks } from './nav';
+import { buildRssFeed, buildSitemap } from './feeds';
+import {
   loadConfig,
   getConfig,
   hasSidebar,
@@ -12,13 +13,17 @@ const {
   loadPost,
   loadContent,
   listContentSlugs,
-} = require('./content');
+} from './content';
+import type {
+  BuildResult,
+  TemplateLocals,
+  WriteFileOptions,
+  WriteFileResult,
+} from '../types/build';
 
-const OUTPUT_DIR = process.env.OUTPUT_DIR || path.join(__dirname, '..', 'dist');
-const ASSETS_DIR = path.join(__dirname, '..', 'assets');
-const VIEWS_DIR = path.join(__dirname, '..', 'views');
+export { OUTPUT_DIR };
 
-function templateLocals(extra = {}) {
+function templateLocals(extra: Partial<TemplateLocals> = {}): TemplateLocals {
   const config = getConfig();
   const activePath = extra.activePath ?? null;
 
@@ -28,18 +33,18 @@ function templateLocals(extra = {}) {
     hasSidebar: hasSidebar(),
     theme: getThemeVars(config.theme),
     ...extra,
-    navLinks: getNavLinks(config.nav?.links, activePath),
+    navLinks: getNavLinks(config.nav.links, activePath),
   };
 }
 
-function renderTemplate(name, locals) {
+function renderTemplate(name: string, locals: Partial<TemplateLocals>): Promise<string> {
   const file = path.join(VIEWS_DIR, `${name}.ejs`);
   return ejs.renderFile(file, templateLocals(locals), {
     views: [VIEWS_DIR],
   });
 }
 
-async function copyDir(src, dest) {
+async function copyDir(src: string, dest: string): Promise<void> {
   await fs.mkdir(dest, { recursive: true });
   const entries = await fs.readdir(src, { withFileTypes: true });
 
@@ -56,7 +61,7 @@ async function copyDir(src, dest) {
   );
 }
 
-async function copyStaticAssets() {
+async function copyStaticAssets(): Promise<void> {
   try {
     await fs.access(ASSETS_DIR);
   } catch {
@@ -66,14 +71,15 @@ async function copyStaticAssets() {
   await copyDir(ASSETS_DIR, OUTPUT_DIR);
 }
 
-async function cleanOutputDir() {
+async function cleanOutputDir(): Promise<void> {
   await fs.mkdir(OUTPUT_DIR, { recursive: true });
 
   let entries;
   try {
     entries = await fs.readdir(OUTPUT_DIR, { withFileTypes: true });
   } catch (err) {
-    if (err.code === 'ENOENT') return;
+    const nodeErr = err as NodeJS.ErrnoException;
+    if (nodeErr.code === 'ENOENT') return;
     throw err;
   }
 
@@ -88,7 +94,11 @@ async function cleanOutputDir() {
   );
 }
 
-async function writeFile(urlPath, contents, { minify = true } = {}) {
+async function writeFile(
+  urlPath: string,
+  contents: string,
+  { minify = true }: WriteFileOptions = {},
+): Promise<WriteFileResult> {
   const outFile = urlPath
     ? path.join(OUTPUT_DIR, urlPath)
     : path.join(OUTPUT_DIR, 'index.html');
@@ -103,33 +113,37 @@ async function writeFile(urlPath, contents, { minify = true } = {}) {
   return { outFile, rawBytes, outBytes };
 }
 
-async function writePage(urlPath, html) {
+async function writePage(urlPath: string, html: string): Promise<WriteFileResult> {
   const filePath = urlPath ? path.join(urlPath, 'index.html') : 'index.html';
   return writeFile(filePath, html);
 }
 
-async function buildSite() {
+export async function buildSite(): Promise<BuildResult> {
   await loadConfig();
   const config = getConfig();
 
   await cleanOutputDir();
   await copyStaticAssets();
-  await prepareNavIcons(config.nav?.links);
+  await prepareNavIcons(config.nav.links);
 
   const posts = await loadPosts();
   const contentSlugs = await listContentSlugs();
-  const pages = [];
+  const pages: string[] = [];
   let rawBytes = 0;
   let outBytes = 0;
 
-  const addPage = async (urlPath, html) => {
+  const addPage = async (urlPath: string, html: string): Promise<void> => {
     const result = await writePage(urlPath, html);
     pages.push(result.outFile);
     rawBytes += result.rawBytes;
     outBytes += result.outBytes;
   };
 
-  const addFile = async (filePath, contents, options) => {
+  const addFile = async (
+    filePath: string,
+    contents: string,
+    options?: WriteFileOptions,
+  ): Promise<void> => {
     const result = await writeFile(filePath, contents, options);
     pages.push(result.outFile);
     rawBytes += result.rawBytes;
@@ -178,5 +192,3 @@ async function buildSite() {
     minified: process.env.MINIFY !== 'false',
   };
 }
-
-module.exports = { buildSite, OUTPUT_DIR };

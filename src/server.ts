@@ -1,15 +1,15 @@
-const express = require('express');
-const compression = require('compression');
-const helmet = require('helmet');
-const path = require('path');
-const { runStatusPlugin } = require('./plugins');
-const { loadConfig, getConfig } = require('./lib/content');
-const { OUTPUT_DIR } = require('./lib/build');
-const { runBuild, startWatcher } = require('./lib/watch');
+import express from 'express';
+import compression from 'compression';
+import helmet from 'helmet';
+import path from 'path';
+import { runStatusPlugin } from './plugins';
+import { loadConfig, getConfig } from './lib/content';
+import { OUTPUT_DIR } from './lib/build';
+import { runBuild, startWatcher } from './lib/watch';
+import { PUBLIC_DIR } from './paths';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const PUBLIC_DIR = process.env.PUBLIC_DIR || path.join(__dirname, 'public');
+const PORT = Number(process.env.PORT) || 3000;
 
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
@@ -32,14 +32,16 @@ app.get('/api/status', async (_req, res) => {
   const config = getConfig();
   const statusConfig = config.status;
   if (!statusConfig?.plugin) {
-    return res.json({ online: false, metrics: {} });
+    res.json({ online: false, metrics: {} });
+    return;
   }
 
   try {
-    const result = await runStatusPlugin(statusConfig.plugin, statusConfig.options || {});
+    const result = await runStatusPlugin(statusConfig.plugin, statusConfig.options ?? {});
     res.json(result);
   } catch (err) {
-    console.error('Status plugin error:', err.message);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('Status plugin error:', message);
     res.json({ online: false, metrics: {} });
   }
 });
@@ -51,7 +53,7 @@ app.get('*', (_req, res) => {
   res.sendFile(path.join(OUTPUT_DIR, 'index.html'));
 });
 
-async function start() {
+async function start(): Promise<void> {
   await loadConfig();
   await runBuild({ label: 'startup' });
   startWatcher();
@@ -62,6 +64,7 @@ async function start() {
 }
 
 start().catch((err) => {
-  console.error('Failed to start:', err.message);
+  const message = err instanceof Error ? err.message : String(err);
+  console.error('Failed to start:', message);
   process.exit(1);
 });

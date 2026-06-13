@@ -1,9 +1,11 @@
-const { marked } = require('marked');
-const { minify } = require('html-minifier-terser');
+import { marked } from 'marked';
+import { minify, type Options as MinifyOptions } from 'html-minifier-terser';
+import type { AppConfig, ThemeBackground } from '../types/config';
+import type { ThemeVars } from '../types/theme';
 
 marked.setOptions({ gfm: true, breaks: true });
 
-const HTML_MINIFY_OPTIONS = {
+const HTML_MINIFY_OPTIONS: MinifyOptions = {
   collapseWhitespace: true,
   conservativeCollapse: true,
   removeComments: true,
@@ -15,7 +17,12 @@ const HTML_MINIFY_OPTIONS = {
   minifyJS: true,
 };
 
-const THEME_DEFAULTS = {
+const THEME_DEFAULTS: Required<
+  Pick<
+    ThemeBackground,
+    'type' | 'color' | 'gradientStart' | 'gradientEnd' | 'image' | 'repeat' | 'position' | 'size'
+  >
+> = {
   type: 'gradient',
   color: '#35b2f5',
   gradientStart: '#35b2f5',
@@ -26,7 +33,7 @@ const THEME_DEFAULTS = {
   size: 'cover',
 };
 
-function formatDate(iso) {
+export function formatDate(iso: string): string {
   if (!iso) return '';
   return new Date(iso).toLocaleDateString('en-US', {
     month: 'short',
@@ -35,40 +42,40 @@ function formatDate(iso) {
   });
 }
 
-function renderMarkdown(text) {
+export function renderMarkdown(text: string): string {
   if (!text?.trim()) return '';
-  return marked.parse(text.trim());
+  return marked.parse(text.trim()) as string;
 }
 
-async function minifyHtml(html) {
+export async function minifyHtml(html: string): Promise<string> {
   if (process.env.MINIFY === 'false') return html;
   return minify(html, HTML_MINIFY_OPTIONS);
 }
 
-function normalizeImagePath(image) {
+export function normalizeImagePath(image: string | null | undefined): string | null {
   if (!image) return null;
   if (image.startsWith('http://') || image.startsWith('https://')) return image;
   if (image.startsWith('/')) return image;
   return `/${image}`;
 }
 
-function normalizeLocalPath(value) {
+export function normalizeLocalPath(value: string | null | undefined): string | null {
   if (!value) return null;
   if (value.startsWith('http://') || value.startsWith('https://')) return null;
   if (value.startsWith('/')) return value;
   return `/${value}`;
 }
 
-function isRemoteUrl(value) {
+export function isRemoteUrl(value: string): boolean {
   return /^https?:\/\//i.test(value);
 }
 
-function getSiteUrl(config) {
-  const url = process.env.SITE_URL || config.site?.url || 'http://localhost:3000';
+export function getSiteUrl(config: AppConfig): string {
+  const url = process.env.SITE_URL ?? config.site.url ?? 'http://localhost:3000';
   return url.replace(/\/$/, '');
 }
 
-function escapeXml(text) {
+export function escapeXml(text: string): string {
   return String(text)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -77,11 +84,11 @@ function escapeXml(text) {
     .replace(/'/g, '&apos;');
 }
 
-function getThemeVars(theme = {}) {
+export function getThemeVars(theme: AppConfig['theme'] = {}): ThemeVars {
   const bg = { ...THEME_DEFAULTS, ...theme.background };
-  const type = bg.type || 'gradient';
+  const type = bg.type ?? 'gradient';
 
-  const vars = {
+  const vars: ThemeVars = {
     backgroundColor: bg.color,
     backgroundImage: 'none',
     backgroundRepeat: 'no-repeat',
@@ -113,15 +120,3 @@ function getThemeVars(theme = {}) {
   vars.backgroundImage = `linear-gradient(to bottom, ${start}, ${end})`;
   return vars;
 }
-
-module.exports = {
-  formatDate,
-  renderMarkdown,
-  minifyHtml,
-  normalizeImagePath,
-  normalizeLocalPath,
-  isRemoteUrl,
-  getSiteUrl,
-  escapeXml,
-  getThemeVars,
-};
