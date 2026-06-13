@@ -44,23 +44,6 @@ function renderTemplate(name: string, locals: Partial<TemplateLocals>): Promise<
   });
 }
 
-async function copyDir(src: string, dest: string): Promise<void> {
-  await fs.mkdir(dest, { recursive: true });
-  const entries = await fs.readdir(src, { withFileTypes: true });
-
-  await Promise.all(
-    entries.map(async (entry) => {
-      const srcPath = path.join(src, entry.name);
-      const destPath = path.join(dest, entry.name);
-      if (entry.isDirectory()) {
-        await copyDir(srcPath, destPath);
-      } else {
-        await fs.copyFile(srcPath, destPath);
-      }
-    }),
-  );
-}
-
 async function copyStaticAssets(): Promise<void> {
   try {
     await fs.access(ASSETS_DIR);
@@ -68,7 +51,7 @@ async function copyStaticAssets(): Promise<void> {
     return;
   }
 
-  await copyDir(ASSETS_DIR, OUTPUT_DIR);
+  await fs.cp(ASSETS_DIR, OUTPUT_DIR, { recursive: true });
 }
 
 async function cleanOutputDir(): Promise<void> {
