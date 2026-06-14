@@ -28,9 +28,9 @@ npm run build
 docker compose up --build
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Caddy reverse-proxies to the Node app, which serves the built site from `dist/` (HTML, CSS, JS, cached nav icons) and user assets from `public/`.
+Open [http://localhost:3000](http://localhost:3000). Caddy reverse-proxies to the Node app, which serves the built site from `dist/` (HTML, CSS, JS, cached nav icons) and user assets from `content/public/`.
 
-`config.json`, `content/`, `posts/`, and `public/` are mounted from the host so you can edit them without rebuilding the image.
+`config.json` and `content/` are mounted from the host so you can edit them without rebuilding the image.
 
 For local development without Docker, `npm start` serves everything directly from Node.
 
@@ -50,11 +50,12 @@ When `DOMAIN` is set, Caddy obtains and renews TLS certificates automatically. E
 
 ```
 config.json     Site branding, links, sidebar, status plugin (see config.example.json)
-content/        Static pages (e.g. about.md → /about)
-posts/          News posts (e.g. foo.md → /news/foo)
+content/        Static pages, news posts, and user assets
+  *.md          Pages (e.g. about.md → /about)
+  posts/        News posts (e.g. foo.md → /news/foo)
+  public/       Logos, images, downloads, local nav icons
 views/          EJS templates
 assets/         Site CSS and client JS (copied to dist/ on build)
-public/         User assets — logos, images, downloads, local nav icons
 lib/            Build, watch, and data loading
 plugins/        Status widget plugins (mock, tcp-check, http)
 dist/           Generated site (HTML, CSS, JS, cached icons; gitignored)
@@ -82,7 +83,7 @@ Configure `nav.links` with text or icon entries:
 ```
 
 - **text** — standard nav label + href (internal paths or external URLs)
-- **icon** — SVG icon link; `icon` can be a local path under `public/` (e.g. `/img/github.svg`) or a remote SVG URL (downloaded once to `dist/img/links/cached/` and reused on later builds)
+- **icon** — SVG icon link; `icon` can be a local path under `content/public/` (e.g. `/img/github.svg`) or a remote SVG URL (downloaded once to `dist/img/links/cached/` and reused on later builds)
 
 Set `NAV_ICONS_REFRESH=true` to force re-downloading remote icons. If a download fails (e.g. HTTP 429), the last cached copy is used when available.
 
@@ -126,11 +127,11 @@ Set `theme.background.type` to `gradient`, `solid`, or `image`:
 }
 ```
 
-`color` is used as the fallback/base for gradients and images. Image paths can be relative to `public/` (e.g. `img/foo.jpg`). Any file under `public/` is served at the same URL path (e.g. `public/downloads/guide.zip` → `/downloads/guide.zip`).
+`color` is used as the fallback/base for gradients and images. Image paths can be relative to `content/public/` (e.g. `img/foo.jpg`). Any file under `content/public/` is served at the same URL path (e.g. `content/public/downloads/guide.zip` → `/downloads/guide.zip`).
 
 ## Writing content
 
-**Posts** (`posts/*.md`) use frontmatter:
+**Posts** (`content/posts/*.md`) use frontmatter:
 
 ````markdown
 ---
@@ -176,10 +177,10 @@ Page content here.
 | ------------------- | ------------------------ | --------------------------------------------------------------- |
 | `PORT`              | `3000`                   | Server port                                                     |
 | `CONFIG_PATH`       | `./config.json`          | Path to config file                                             |
-| `POSTS_DIR`         | `./posts`                | News posts directory                                            |
-| `CONTENT_DIR`       | `./content`              | Static pages directory                                          |
+| `POSTS_DIR`         | `./content/posts`        | News posts directory                                            |
+| `CONTENT_DIR`       | `./content`              | Content root (pages, posts, public assets)                      |
 | `OUTPUT_DIR`        | `./dist`                 | Build output (HTML, CSS, JS, cached icons)                      |
-| `PUBLIC_DIR`        | `./public`               | User-uploaded static assets (logos, images)                     |
+| `PUBLIC_DIR`        | `./content/public`       | User-uploaded static assets (logos, images)                     |
 | `MINIFY`            | enabled                  | Set to `false` to disable HTML minification                     |
 | `NAV_ICONS_REFRESH` | `false`                  | Set to `true` to re-download remote nav SVGs                    |
 | `SITE_URL`          | `config.site.url`        | Override site URL for RSS/sitemap                               |
