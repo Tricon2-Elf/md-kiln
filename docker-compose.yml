@@ -14,6 +14,7 @@ services:
       CONTENT_DIR: /app/content
       POSTS_DIR: /app/posts
       OUTPUT_DIR: /app/dist
+      CHOKIDAR_USEPOLLING: "true"
     healthcheck:
       test: ["CMD", "test", "-f", "/app/dist/index.html"]
       interval: 2s

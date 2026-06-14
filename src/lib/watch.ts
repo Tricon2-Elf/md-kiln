@@ -11,6 +11,7 @@ import { buildSite } from "./build";
 import type { BuildResult, BuildTrigger } from "../types/build";
 
 const DEBOUNCE_MS = 300;
+const USE_POLLING = process.env.CHOKIDAR_USEPOLLING === "true";
 
 interface WatchTarget {
   label: string;
@@ -126,9 +127,13 @@ export function startWatcher(): void {
     console.log(`  - ${target.label}: ${target.dir}`);
   }
   console.log(`  - config: ${CONFIG_PATH}`);
+  if (USE_POLLING) {
+    console.log("  - mode: polling (CHOKIDAR_USEPOLLING=true)");
+  }
 
   const watcher = chokidar.watch(watchPaths, {
     ignoreInitial: true,
+    usePolling: USE_POLLING,
     awaitWriteFinish: {
       stabilityThreshold: 100,
       pollInterval: 50,
