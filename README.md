@@ -1,6 +1,6 @@
-# mdklin
+# mdkiln
 
-A small, config-driven site generator. Write content in Markdown, customise branding in `config.json`, and mdklin pre-renders everything to static HTML on startup and when files change.
+A small, config-driven site generator. Write content in Markdown, customise branding in `config.json`, and mdkiln pre-renders everything to static HTML on startup and when files change.
 
 ## Screenshots
 

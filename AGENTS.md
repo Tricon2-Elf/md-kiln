@@ -1,10 +1,10 @@
-# Agent guide — mdklin
+# Agent guide — mdkiln
 
 Guidance for AI assistants working in this repository.
 
 ## What this project is
 
-mdklin is a pre-rendered markdown site generator. It is **not** a SPA or a traditional SSR app — pages are built to `dist/` with EJS + `marked`, then served as static HTML. The only runtime API is `/api/status` (optional sidebar widget).
+mdkiln is a pre-rendered markdown site generator. It is **not** a SPA or a traditional SSR app — pages are built to `dist/` with EJS + `marked`, then served as static HTML. The only runtime API is `/api/status` (optional sidebar widget).
 
 The server is written in **TypeScript** (`src/` → `build/` via `tsc`). Static site output still goes to `dist/`.
 

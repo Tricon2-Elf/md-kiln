@@ -43,7 +43,7 @@ export function buildRssFeed({ config, posts }: RssFeedInput): string {
     link: siteUrl,
     image: absoluteUrl(siteUrl, config.site.logo),
     copyright: config.site.footer || undefined,
-    generator: "mdklin",
+    generator: "mdkiln",
     feed: `${siteUrl}/feed.xml`,
   });
 

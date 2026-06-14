@@ -1,12 +1,12 @@
 {
-  "name": "mdklin",
+  "name": "mdkiln",
   "version": "1.0.0",
   "description": "Pre-rendered markdown site generator",
   "main": "build/server.js",
   "scripts": {
     "compile": "tsc",
     "build": "npm run compile && node build/scripts/build.js",
-    "start": "node build/server.js",
+    "start": "npm run compile && node build/server.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
