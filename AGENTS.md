@@ -11,13 +11,13 @@ The server is written in **TypeScript** (`src/` → `build/` via `tsc`). Static 
 ## Architecture
 
 ```
-config.json + posts/ + content/ + views/
+config.json + content/ + views/
         ↓
 src/lib/build.ts  (EJS render → minify → dist/ + feed.xml + sitemap.xml)
         ↓
 src/lib/watch.ts  (rebuild on .md / .json / .ejs changes)
         ↓
-src/server.ts     (serve dist/ + public/ user assets, /api/status)
+src/server.ts     (serve dist/ + content/public/ user assets, /api/status)
         ↓
 build/            (compiled JS run by Node)
 ```
@@ -59,8 +59,8 @@ build/            (compiled JS run by Node)
 
 | URL            | Source                                    |
 | -------------- | ----------------------------------------- |
-| `/`            | Home — post list from `posts/`            |
-| `/news/:slug`  | Post from `posts/:slug.md`                |
+| `/`            | Home — post list from `content/posts/`     |
+| `/news/:slug`  | Post from `content/posts/:slug.md`        |
 | `/:slug`       | Page from `content/:slug.md` if it exists |
 | `/feed.xml`    | RSS feed (build output)                   |
 | `/sitemap.xml` | Sitemap (build output)                    |
@@ -74,7 +74,7 @@ Do not add per-route hardcoding (e.g. a dedicated `/about` route). Content pages
 - **Types** — config types are inferred from `src/lib/config-schema.ts` (Zod). Add content/plugin/build types in `src/types/` when needed.
 - **Config-driven branding** — site name, nav links, sidebar visibility live in `config.json`, not templates.
 - **Config validation** — `validateConfig()` in `src/lib/config-schema.ts` runs on every `loadConfig()`; update the Zod schema when adding config fields.
-- **Nav links** — `nav.links` supports `text` and `icon` types; remote SVG icons are cached in `dist/img/links/cached/` during build (`src/lib/nav.ts`). Local icons live under the user `public/` mount.
+- **Nav links** — `nav.links` supports `text` and `icon` types; remote SVG icons are cached in `dist/img/links/cached/` during build (`src/lib/nav.ts`). Local icons live under `content/public/`.
 - **Server-side rendering only** — do not fetch markdown from client JS; render in `src/lib/build.ts`.
 - **Minimal dependencies** — prefer Node built-ins; justify new packages.
 - **Scoped changes** — match existing style in `src/lib/` and `views/partials/`.
@@ -106,7 +106,7 @@ Docker Compose runs two services:
 - **web** — compiles TypeScript, builds `dist/`, watches for changes, serves the site and `/api/status`
 - **caddy** — reverse-proxies to web on port 3000 (local HTTP) or with automatic HTTPS when `DOMAIN` is set in `.env`
 
-`config.json`, `content/`, `posts/`, and `public/` are bind-mounted for user content. `dist/` is a volume on web (HTML, CSS, JS, cached nav icons). Template and asset changes (`views/`, `assets/`) require an image rebuild unless those dirs are also mounted.
+`config.json` and `content/` are bind-mounted for user content. `dist/` is a volume on web (HTML, CSS, JS, cached nav icons). Template and asset changes (`views/`, `assets/`) require an image rebuild unless those dirs are also mounted.
 
 Set `DOMAIN` in `.env` (see `.env.example`) for Let's Encrypt certificate provisioning and auto-renewal.
 
@@ -117,7 +117,7 @@ Local `npm start` (without Docker) serves static files from Node directly.
 - TypeScript / server logic → `src/` (recompile before running; watcher does not watch `src/` — restart server after server-side changes)
 - Template/layout changes → `views/` (triggers rebuild via watcher)
 - New page → add `content/foo.md` (served at `/foo`)
-- New post → add `posts/foo.md` (served at `/news/foo`)
+- New post → add `content/posts/foo.md` (served at `/news/foo`)
 - Branding/links → `config.json` (see `config.example.json`)
 - Styles → `assets/css/style.css`
 - Rebuild logging → `src/lib/watch.ts`

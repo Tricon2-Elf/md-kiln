@@ -19,7 +19,6 @@ interface WatchTarget {
 }
 
 const WATCH_TARGETS: WatchTarget[] = [
-  { label: "posts", dir: POSTS_DIR },
   { label: "content", dir: CONTENT_DIR },
   { label: "templates", dir: VIEWS_DIR },
   { label: "assets", dir: ASSETS_DIR },
@@ -58,6 +57,13 @@ function formatBuildStats(result: BuildResult): string {
 function resolveTrigger(filePath: string): BuildTrigger {
   if (filePath === CONFIG_PATH) {
     return { label: "config", file: filePath };
+  }
+
+  if (
+    filePath === POSTS_DIR ||
+    filePath.startsWith(`${POSTS_DIR}${path.sep}`)
+  ) {
+    return { label: "posts", file: filePath };
   }
 
   for (const target of WATCH_TARGETS) {
@@ -139,7 +145,7 @@ export function startWatcher(): void {
       pollInterval: 50,
     },
     ignored: (filePath, stats) => {
-      if (stats?.isDirectory()) return false;
+      if (!stats || stats.isDirectory()) return false;
       return !shouldRebuild(path.basename(filePath));
     },
   });

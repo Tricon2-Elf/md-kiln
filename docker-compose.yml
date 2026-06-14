@@ -6,13 +6,10 @@ services:
     volumes:
       - ./config.json:/app/config.json
       - ./content:/app/content
-      - ./posts:/app/posts
-      - ./public:/app/public
       - dist:/app/dist
     environment:
       CONFIG_PATH: /app/config.json
       CONTENT_DIR: /app/content
-      POSTS_DIR: /app/posts
       OUTPUT_DIR: /app/dist
       CHOKIDAR_USEPOLLING: "true"
     healthcheck:
