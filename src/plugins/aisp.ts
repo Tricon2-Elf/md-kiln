@@ -41,8 +41,7 @@ export async function getStatus(
 
     const data = (await res.json()) as AispHealthzResponse;
     const msgServer = data.servers?.msgServer;
-    const online =
-      isHealthy(data.status) && isHealthy(msgServer?.state);
+    const online = isHealthy(data.status) && isHealthy(msgServer?.state);
 
     const players = online ? Number(msgServer?.activeHandlers ?? 0) : 0;
     const slots = online ? Number(msgServer?.maxHandlers ?? 0) : 0;

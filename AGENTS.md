@@ -59,7 +59,7 @@ build/            (compiled JS run by Node)
 
 | URL            | Source                                    |
 | -------------- | ----------------------------------------- |
-| `/`            | Home — post list from `content/posts/`     |
+| `/`            | Home — post list from `content/posts/`    |
 | `/news/:slug`  | Post from `content/posts/:slug.md`        |
 | `/:slug`       | Page from `content/:slug.md` if it exists |
 | `/feed.xml`    | RSS feed (build output)                   |
