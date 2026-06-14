@@ -7,6 +7,7 @@ interface AispServerStatus {
   state?: string;
   activeHandlers?: number;
   availableSlots?: number;
+  maxHandlers?: number;
 }
 
 interface AispHealthzResponse {
@@ -44,7 +45,7 @@ export async function getStatus(
       isHealthy(data.status) && isHealthy(msgServer?.state);
 
     const players = online ? Number(msgServer?.activeHandlers ?? 0) : 0;
-    const slots = online ? Number(msgServer?.availableSlots ?? 0) : 0;
+    const slots = online ? Number(msgServer?.maxHandlers ?? 0) : 0;
 
     return { online, metrics: { players, slots } };
   } catch {
