@@ -3,6 +3,7 @@ export type {
   BackgroundType,
   HomeConfig,
   HttpStatusOptions,
+  AispStatusOptions,
   IconNavLink,
   MockStatusOptions,
   NavConfig,

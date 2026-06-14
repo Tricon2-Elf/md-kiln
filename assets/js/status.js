@@ -13,7 +13,15 @@ async function fetchStatus() {
 
     if (playersEl) {
       const players = data.metrics?.players ?? 0;
-      playersEl.textContent = data.online ? players.toLocaleString() : "0";
+      const slots = data.metrics?.slots;
+      if (data.online) {
+        playersEl.textContent =
+          slots != null
+            ? `${players.toLocaleString()} / ${Number(slots).toLocaleString()}`
+            : players.toLocaleString();
+      } else {
+        playersEl.textContent = "0";
+      }
     }
   } catch {
     statusEl.textContent = "Unknown";

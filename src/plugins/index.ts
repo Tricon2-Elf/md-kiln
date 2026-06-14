@@ -4,11 +4,13 @@ import type { StatusPlugin, StatusResult } from "../types/plugins";
 import * as mockPlugin from "./mock";
 import * as tcpCheckPlugin from "./tcp-check";
 import * as httpPlugin from "./http";
+import * as aispPlugin from "./aisp";
 
 const builtIn: Record<StatusPluginName, StatusPlugin> = {
   mock: mockPlugin,
   "tcp-check": tcpCheckPlugin,
   http: httpPlugin,
+  aisp: aispPlugin,
 };
 
 function isStatusPlugin(value: unknown): value is StatusPlugin {

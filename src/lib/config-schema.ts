@@ -114,7 +114,7 @@ const sidebarCtaSchema = z
 
 const statusSchema = z
   .object({
-    plugin: z.enum(["mock", "tcp-check", "http"]).optional(),
+    plugin: z.enum(["mock", "tcp-check", "http", "aisp"]).optional(),
     options: z.record(z.string(), z.unknown()).optional(),
   })
   .passthrough()
@@ -222,10 +222,16 @@ export interface HttpStatusOptions {
   timeout?: number;
 }
 
+export interface AispStatusOptions {
+  url?: string;
+  timeout?: number;
+}
+
 export type StatusOptions =
   | MockStatusOptions
   | TcpCheckStatusOptions
   | HttpStatusOptions
+  | AispStatusOptions
   | Record<string, unknown>;
 
 export type StatusConfig = NonNullable<AppConfig["status"]>;
