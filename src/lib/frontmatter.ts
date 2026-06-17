@@ -3,8 +3,7 @@ export interface FrontmatterResult {
   content: string;
 }
 
-const FRONTMATTER_PATTERN =
-  /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n)?([\s\S]*)$/;
+const FRONTMATTER_PATTERN = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n)?([\s\S]*)$/;
 
 function parseValue(raw: string): string {
   const trimmed = raw.trim();

@@ -256,7 +256,11 @@ function formatZodError(error: z.ZodError): string[] {
         if (raw.code === "invalid_type" && raw.input === undefined) {
           return `${path} is required`;
         }
-        if (path.endsWith(".type") && raw.code === "invalid_value" && raw.values) {
+        if (
+          path.endsWith(".type") &&
+          raw.code === "invalid_value" &&
+          raw.values
+        ) {
           const allowed = raw.values.map(String);
           if (path === "theme.background.type") {
             return 'theme.background.type must be "solid", "gradient", or "image"';
