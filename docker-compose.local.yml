@@ -1,0 +1,21 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config.json:/app/config.json
+      - ./content:/app/content
+      - ./dist:/app/dist
+    environment:
+      CONFIG_PATH: /app/config.json
+      CONTENT_DIR: /app/content
+      OUTPUT_DIR: /app/dist
+      CHOKIDAR_USEPOLLING: "true"
+    healthcheck:
+      test: ["CMD", "test", "-f", "/app/dist/index.html"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 10s
+    restart: unless-stopped
