@@ -337,6 +337,40 @@ body {
   color: var(--accent);
 }
 
+.article__text table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 0.95rem;
+}
+
+.article__text th,
+.article__text td {
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.article__text th {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--text-primary);
+  background: rgba(43, 127, 212, 0.1);
+}
+
+.article__text tbody tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 600px) {
+  .article__text table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* Sidebar */
 .sidebar {
   display: flex;
