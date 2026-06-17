@@ -246,21 +246,23 @@ function formatZodError(error: z.ZodError): string[] {
     ...new Set(
       error.issues.map((issue) => {
         const path = formatIssuePath(issue.path);
-        if (
-          issue.code === z.ZodIssueCode.invalid_type &&
-          issue.received === "undefined"
-        ) {
+        const raw = issue as {
+          code?: string;
+          input?: unknown;
+          values?: unknown[];
+          message: string;
+        };
+
+        if (raw.code === "invalid_type" && raw.input === undefined) {
           return `${path} is required`;
         }
-        if (
-          path.endsWith(".type") &&
-          issue.code === z.ZodIssueCode.invalid_enum_value
-        ) {
+        if (path.endsWith(".type") && raw.code === "invalid_value" && raw.values) {
+          const allowed = raw.values.map(String);
           if (path === "theme.background.type") {
             return 'theme.background.type must be "solid", "gradient", or "image"';
           }
           if (path === "status.plugin") {
-            return `status.plugin must be one of: ${issue.options.join(", ")}`;
+            return `status.plugin must be one of: ${allowed.join(", ")}`;
           }
           if (path.endsWith(".type")) {
             return `${path} must be "text" or "icon"`;

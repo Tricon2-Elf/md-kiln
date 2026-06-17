@@ -1,40 +1,19 @@
 import fs from "fs/promises";
 import path from "path";
-import matter from "gray-matter";
 import { CONFIG_PATH, CONTENT_DIR, POSTS_DIR } from "../paths";
 import { renderMarkdown, normalizeImagePath } from "./utils";
 import { validateConfig } from "./config-schema";
 import { parseTagDef } from "./tags";
+import { parseFrontmatter } from "./frontmatter";
 import type { AppConfig } from "./config-schema";
 import type {
   ContentPage,
-  FrontmatterResult,
   ParsedTag,
   Post,
   PostSummary,
 } from "../types/content";
 
 let config: AppConfig | undefined;
-
-function stringifyFrontmatterValue(value: unknown): string {
-  if (value === null || value === undefined) return "";
-  if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean")
-    return String(value);
-  if (value instanceof Date) return value.toISOString();
-  return String(value);
-}
-
-function parseFrontmatter(content: string): FrontmatterResult {
-  const { data, content: body } = matter(content);
-  const fields: Record<string, string> = {};
-
-  for (const [key, value] of Object.entries(data)) {
-    fields[key] = stringifyFrontmatterValue(value);
-  }
-
-  return { data: fields, content: body };
-}
 
 function resolvePostTag(tagKey: string | undefined): ParsedTag {
   const tags = config!.posts.tags;

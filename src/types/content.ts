@@ -27,8 +27,3 @@ export interface ContentPage {
   body: string;
   html: string;
 }
-
-export interface FrontmatterResult {
-  data: Record<string, string>;
-  content: string;
-}
