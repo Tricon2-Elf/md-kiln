@@ -1,4 +1,0 @@
-# DOMAIN unset → HTTP on :3000 (local). DOMAIN set → automatic HTTPS via Let's Encrypt.
-{$DOMAIN} {
-	reverse_proxy web:3000
-}
