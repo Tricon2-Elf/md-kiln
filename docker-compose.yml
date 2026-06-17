@@ -1,8 +1,6 @@
 services:
   web:
-    build: .
-    expose:
-      - "3000"
+    image: ghcr.io/tricon2-elf/md-kiln:latest
     volumes:
       - ./config.json:/app/config.json
       - ./content:/app/content
@@ -12,6 +10,8 @@ services:
       CONTENT_DIR: /app/content
       OUTPUT_DIR: /app/dist
       CHOKIDAR_USEPOLLING: "true"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     healthcheck:
       test: ["CMD", "test", "-f", "/app/dist/index.html"]
       interval: 2s
@@ -22,17 +22,16 @@ services:
 
   caddy:
     image: caddy:2-alpine
-    entrypoint: ["/bin/sh", "/etc/caddy/docker-entrypoint.sh"]
     ports:
-      - "3000:3000"
       - "80:80"
       - "443:443"
       - "443:443/udp"
     environment:
       DOMAIN: ${DOMAIN:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./caddy/docker-entrypoint.sh:/etc/caddy/docker-entrypoint.sh:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
