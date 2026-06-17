@@ -12,7 +12,9 @@ COPY assets ./assets
 COPY content ./content
 COPY config.json ./
 
-RUN npm run compile && npm prune --production \
+RUN mkdir -p /app/dist \
+  && npm run compile \
+  && npm prune --production \
   && chown -R node:node /app
 
 USER node
