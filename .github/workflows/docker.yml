@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: docker-publish-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
   REGISTRY: ghcr.io
   IMAGE: ghcr.io/${{ github.repository }}
@@ -28,24 +32,35 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
+
           date="$(date -u +'%Y.%m.%d')"
           date_regex="${date//./\\.}"
           package_name="${GITHUB_REPOSITORY#*/}"
           owner="${GITHUB_REPOSITORY_OWNER}"
 
-          owner_type="$(gh api "/users/${owner}" --jq '.type' 2>/dev/null || true)"
+          owner_type="$(gh api "/repos/${GITHUB_REPOSITORY}" --jq '.owner.type')"
           if [[ "$owner_type" == "Organization" ]]; then
             versions_path="/orgs/${owner}/packages/container/${package_name}/versions?per_page=100"
           else
             versions_path="/users/${owner}/packages/container/${package_name}/versions?per_page=100"
           fi
 
-          tags="$(gh api \
+          tags=""
+          if ! tags="$(gh api \
             --paginate \
             -H "Accept: application/vnd.github+json" \
             "${versions_path}" \
             --jq '.[].metadata.container.tags[]?' \
-            2>/dev/null || true)"
+            2>gh_api_error.log)"; then
+            gh_error="$(<gh_api_error.log)"
+            # First publish can return not-found when the package doesn't exist yet.
+            if [[ "$gh_error" != *"404"* && "$gh_error" != *"Not Found"* ]]; then
+              echo "Failed to list package versions from ${versions_path}" >&2
+              echo "$gh_error" >&2
+              exit 1
+            fi
+          fi
 
           max_rev=0
           while IFS= read -r tag; do
@@ -80,6 +95,7 @@ jobs:
           tags: |
             type=raw,value=latest
             type=raw,value=${{ steps.calver.outputs.version }}
+            type=sha,prefix=sha-
           labels: |
             org.opencontainers.image.version=${{ steps.calver.outputs.version }}
 
