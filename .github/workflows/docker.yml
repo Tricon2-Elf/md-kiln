@@ -31,11 +31,19 @@ jobs:
           date="$(date -u +'%Y.%m.%d')"
           date_regex="${date//./\\.}"
           package_name="${GITHUB_REPOSITORY#*/}"
+          owner="${GITHUB_REPOSITORY_OWNER}"
+
+          owner_type="$(gh api "/users/${owner}" --jq '.type' 2>/dev/null || true)"
+          if [[ "$owner_type" == "Organization" ]]; then
+            versions_path="/orgs/${owner}/packages/container/${package_name}/versions?per_page=100"
+          else
+            versions_path="/users/${owner}/packages/container/${package_name}/versions?per_page=100"
+          fi
 
           tags="$(gh api \
             --paginate \
             -H "Accept: application/vnd.github+json" \
-            "/repos/${GITHUB_REPOSITORY}/packages/container/${package_name}/versions?per_page=100" \
+            "${versions_path}" \
             --jq '.[].metadata.container.tags[]?' \
             2>/dev/null || true)"
 
