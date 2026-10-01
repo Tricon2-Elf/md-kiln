@@ -1122,6 +1122,10 @@
       source: markdownPane.querySelector(".source"),
       preview: markdownPane.querySelector(".preview"),
       modeButtons: modeSwitch.querySelectorAll(".mode-btn"),
+      // False until the rich surface is edited. While false we keep the
+      // original Markdown for saving, so a metadata-only edit can't lose
+      // constructs the HTML→Markdown serializer can't represent.
+      surfaceDirty: false,
     };
 
     // Seed the editing surfaces from the saved markdown.
@@ -1129,13 +1133,14 @@
     state.editor.source.value = draft.markdown;
     renderPreview(draft.markdown);
 
-    state.editor.surface.addEventListener("input", markDirty);
+    state.editor.surface.addEventListener("input", markRichDirty);
     state.editor.surface.addEventListener("paste", function (event) {
       event.preventDefault();
       var text = (event.clipboardData || window.clipboardData).getData(
         "text/plain",
       );
       document.execCommand("insertText", false, text);
+      markRichDirty();
     });
     state.editor.source.addEventListener("input", function () {
       markDirty();
@@ -1161,6 +1166,11 @@
 
   function markDirty() {
     state.dirty = true;
+  }
+
+  function markRichDirty() {
+    if (state.editor) state.editor.surfaceDirty = true;
+    markDirty();
   }
 
   function modeButton(label, mode) {
@@ -1251,7 +1261,7 @@
       document.execCommand(command, false, null);
     }
 
-    markDirty();
+    markRichDirty();
     updateToolbarState();
   }
 
@@ -1304,13 +1314,20 @@
     }
 
     if (mode === "markdown") {
-      var md = serializeSurface(state.editor.surface);
+      // Only rebuild Markdown from the DOM when the rich surface was edited;
+      // otherwise keep the Markdown we loaded so nothing is lost.
+      var md = state.editor.surfaceDirty
+        ? serializeSurface(state.editor.surface)
+        : state.draft.markdown;
       state.draft.markdown = md;
       state.editor.source.value = md;
+      state.editor.surfaceDirty = false;
       renderPreview(md);
     } else {
       var source = state.editor.source.value;
       state.draft.markdown = source;
+      // The surface is about to mirror the source, so it is not "dirty".
+      state.editor.surfaceDirty = false;
       markDirty();
       renderMarkdown(source).then(function (html) {
         if (state.editor)
@@ -1409,9 +1426,11 @@
     if (!state.editor) return;
     if (state.mode === "markdown") {
       state.draft.markdown = state.editor.source.value;
-    } else {
+    } else if (state.editor.surfaceDirty) {
       state.draft.markdown = serializeSurface(state.editor.surface);
     }
+    // Rich mode without surface edits: keep the Markdown loaded with the draft
+    // so untouched constructs survive a metadata-only save.
   }
 
   function saveItem() {
@@ -1449,7 +1468,11 @@
       .then(function (res) {
         draft.isNew = false;
         draft.slug = res.slug;
-        if (state.editor && state.mode === "rich") {
+        if (
+          state.editor &&
+          state.mode === "rich" &&
+          state.editor.surfaceDirty
+        ) {
           draft.html = state.editor.surface.innerHTML;
         }
         state.dirty = false;
@@ -1565,7 +1588,7 @@
       if (!url || !state.editor) return;
       restoreSelection(range);
       document.execCommand("insertImage", false, url);
-      markDirty();
+      markRichDirty();
     });
   }
 
