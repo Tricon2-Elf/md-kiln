@@ -4,7 +4,7 @@ Guidance for AI assistants working in this repository.
 
 ## What this project is
 
-mdkiln is a pre-rendered markdown site generator. It is **not** a SPA or a traditional SSR app — pages are built to `dist/` with EJS + `marked`, then served as static HTML. The only runtime API is `/api/status` (optional sidebar widget).
+mdkiln is a pre-rendered markdown site generator. It is **not** a SPA or a traditional SSR app — pages are built to `dist/` with EJS + `marked`, then served as static HTML. The only runtime APIs are `/api/status` (optional sidebar widget) and the admin portal at `/admin` (disabled unless `ADMIN_USERNAME`/`ADMIN_PASSWORD` are set).
 
 The server is written in **TypeScript** (`src/` → `build/` via `tsc`). Static site output still goes to `dist/`.
 
@@ -17,7 +17,7 @@ src/lib/build.ts  (EJS render → minify → dist/ + feed.xml + sitemap.xml)
         ↓
 src/lib/watch.ts  (rebuild on .md / .json / .ejs changes)
         ↓
-src/server.ts     (serve dist/ + content/public/ user assets, /api/status)
+src/server.ts     (serve dist/ + content/public/ user assets, /api/status, /admin)
         ↓
 build/            (compiled JS run by Node)
 ```
@@ -45,6 +45,11 @@ build/            (compiled JS run by Node)
 | `views/`                   | EJS templates; use partials for shared layout                                                                                                        |
 | `src/plugins/`             | Status plugins exporting `getStatus(options)`                                                                                                        |
 | `assets/js/status.js`      | Client-side status widget (plain JS, copied to `dist/`)                                                                                              |
+| `src/lib/admin.ts`         | Admin JSON API (auth-gated CRUD, preview, image upload) and `/admin` shell renderer                                                                  |
+| `src/lib/admin-auth.ts`    | Admin credentials (env), signed session cookies, CSRF, login rate limiting                                                                           |
+| `src/lib/admin-content.ts` | Admin-side post/page reads/writes and frontmatter serialization                                                                                      |
+| `views/admin.ejs`          | Admin single-page shell (external CSS/JS only, to satisfy CSP)                                                                                       |
+| `assets/admin/`            | Admin client app (`admin.js`) and styles (`admin.css`), served from `/admin/assets/`                                                                 |
 
 ## npm scripts
 
@@ -66,6 +71,14 @@ build/            (compiled JS run by Node)
 | `/sitemap.xml` | Sitemap (build output)                    |
 | unknown paths  | Falls back to home (`index.html`)         |
 
+Runtime (not part of the static build):
+
+| URL            | Description                                            |
+| -------------- | ------------------------------------------------------ |
+| `/admin`        | Admin portal shell (enabled by env credentials)        |
+| `/admin/assets` | Admin client JS/CSS (`assets/admin/`)                  |
+| `/admin/api/*`  | Admin JSON API (session cookie + CSRF on mutations)    |
+
 Do not add per-route hardcoding (e.g. a dedicated `/about` route). Content pages are discovered from `content/`.
 
 ## Conventions
@@ -76,6 +89,7 @@ Do not add per-route hardcoding (e.g. a dedicated `/about` route). Content pages
 - **Config validation** — `validateConfig()` in `src/lib/config-schema.ts` runs on every `loadConfig()`; update the Zod schema when adding config fields.
 - **Nav links** — `nav.links` supports `text` and `icon` types; remote SVG icons are cached in `dist/img/links/cached/` during build (`src/lib/nav.ts`). Local icons live under `content/public/`.
 - **Server-side rendering only** — do not fetch markdown from client JS; render in `src/lib/build.ts`.
+- **Admin portal** — enabled by `ADMIN_USERNAME`/`ADMIN_PASSWORD` (unset disables `/admin`). Server logic is `src/lib/admin*.ts`; client is `views/admin.ejs` + `assets/admin/`. Keep the shell free of inline scripts/styles (helmet CSP), and let the file watcher do rebuilds after admin writes.
 - **Minimal dependencies** — prefer Node built-ins; justify new packages.
 - **Scoped changes** — match existing style in `src/lib/` and `views/partials/`.
 - **No external fonts** — use system font stacks in `assets/css/style.css` (copied to `dist/` on build).
@@ -121,6 +135,7 @@ Local `npm start` (without Docker) serves static files from Node directly.
 - Branding/links → `config.json` (see `config.example.json`)
 - Styles → `assets/css/style.css`
 - Rebuild logging → `src/lib/watch.ts`
+- Admin portal → `src/lib/admin*.ts` (server) and `views/admin.ejs` / `assets/admin/` (client); restart after server-side changes (the watcher does not watch `src/`)
 
 ## Development history
 

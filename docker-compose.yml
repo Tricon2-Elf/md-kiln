@@ -10,6 +10,9 @@ services:
       CONTENT_DIR: /app/content
       OUTPUT_DIR: /app/dist
       CHOKIDAR_USEPOLLING: "true"
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET:-}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:

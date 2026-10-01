@@ -58,17 +58,16 @@
       "buttonHref": "/getting-started"
     },
     "status": {
-      "enabled": false,
+      "enabled": true,
       "heading": "Server Status",
       "statusLabel": "Status",
       "playersLabel": "Players Online"
     }
   },
   "status": {
-    "plugin": "mock",
+    "plugin": "aisp",
     "options": {
-      "online": true,
-      "players": 30
+      "url": "https://game.aisp.moe/healthz"
     }
   }
 }
