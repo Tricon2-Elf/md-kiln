@@ -1518,6 +1518,12 @@
             dataUrl: String(reader.result),
           })
             .then(function (res) {
+              if (res.deduplicated) {
+                toast(
+                  "Identical file already uploaded — reused it.",
+                  "success",
+                );
+              }
               resolve(res.url);
             })
             .catch(function (err) {

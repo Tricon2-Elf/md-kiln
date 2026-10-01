@@ -91,7 +91,7 @@ Do not add per-route hardcoding (e.g. a dedicated `/about` route). Content pages
 - **Config validation** — `validateConfig()` in `src/lib/config-schema.ts` runs on every `loadConfig()`; update the Zod schema when adding config fields.
 - **Nav links** — `nav.links` supports `text` and `icon` types; remote SVG icons are cached in `dist/img/links/cached/` during build (`src/lib/nav.ts`). Local icons live under `content/public/`.
 - **Server-side rendering only** — do not fetch markdown from client JS; render in `src/lib/build.ts`.
-- **Admin portal** — enabled by `ADMIN_USERNAME`/`ADMIN_PASSWORD` (unset disables `/admin`). Server logic is `src/lib/admin*.ts`; client is `views/admin.ejs` + `assets/admin/`. Keep the shell free of inline scripts/styles (helmet CSP), and let the file watcher do rebuilds after admin writes. The Navigation editor rewrites `nav.links` in `config.json` via `src/lib/admin-config.ts` (Zod-validated; other config fields preserved).
+- **Admin portal** — enabled by `ADMIN_USERNAME`/`ADMIN_PASSWORD` (unset disables `/admin`). Server logic is `src/lib/admin*.ts`; client is `views/admin.ejs` + `assets/admin/`. Keep the shell free of inline scripts/styles (helmet CSP), and let the file watcher do rebuilds after admin writes. The Navigation editor rewrites `nav.links` in `config.json` via `src/lib/admin-config.ts` (Zod-validated; other config fields preserved). Image uploads are content-addressed (SHA-256) and deduplicated in `src/lib/admin.ts`.
 - **Minimal dependencies** — prefer Node built-ins; justify new packages.
 - **Scoped changes** — match existing style in `src/lib/` and `views/partials/`.
 - **No external fonts** — use system font stacks in `assets/css/style.css` (copied to `dist/` on build).

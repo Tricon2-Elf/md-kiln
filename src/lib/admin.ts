@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import crypto from "crypto";
 import express, {
   type NextFunction,
   type Request,
@@ -69,6 +70,44 @@ function sanitizeSvg(svg: string): string {
     .replace(/\son[a-z]+\s*=\s*'[^']*'/gi, "")
     .replace(/\son[a-z]+\s*=\s*[^\s>]+/gi, "")
     .replace(/(href|xlink:href)\s*=\s*("|')\s*javascript:[^"']*("|')/gi, "");
+}
+
+function hashContent(data: Buffer): string {
+  return crypto.createHash("sha256").update(data).digest("hex");
+}
+
+/**
+ * Content hash → filename for everything in `content/public/uploads/`. Built
+ * once (lazily) so identical uploads reuse an existing file instead of piling
+ * up timestamped copies.
+ */
+let uploadIndex: Map<string, string> | undefined;
+
+async function getUploadIndex(): Promise<Map<string, string>> {
+  if (uploadIndex) return uploadIndex;
+
+  const dir = path.join(PUBLIC_DIR, "uploads");
+  const index = new Map<string, string>();
+  try {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isFile()) continue;
+      try {
+        const data = await fs.readFile(path.join(dir, entry.name));
+        const hash = hashContent(data);
+        if (!index.has(hash)) {
+          index.set(hash, entry.name);
+        }
+      } catch {
+        // skip unreadable files
+      }
+    }
+  } catch {
+    // uploads directory does not exist yet
+  }
+
+  uploadIndex = index;
+  return index;
 }
 
 // Content writes are picked up by the file watcher (src/lib/watch.ts), which
@@ -186,21 +225,33 @@ adminApiRouter.post(
       const base = sanitizeBaseName(
         typeof body.filename === "string" ? body.filename : "image",
       );
-      const name = `${base}-${Date.now().toString(36)}.${extension}`;
       const dir = path.join(PUBLIC_DIR, "uploads");
       await fs.mkdir(dir, { recursive: true });
-      const target = path.join(dir, name);
 
-      if (extension === "svg") {
-        await fs.writeFile(
-          target,
-          sanitizeSvg(buffer.toString("utf8")),
-          "utf8",
-        );
-      } else {
-        await fs.writeFile(target, buffer);
+      // Hash what will actually be stored (the SVG is sanitized first) so the
+      // index stays consistent with the files on disk.
+      const stored =
+        extension === "svg"
+          ? Buffer.from(sanitizeSvg(buffer.toString("utf8")), "utf8")
+          : buffer;
+      const hash = hashContent(stored);
+      const index = await getUploadIndex();
+
+      const existing = index.get(hash);
+      if (existing) {
+        try {
+          await fs.access(path.join(dir, existing));
+          res.json({ url: `/uploads/${existing}`, deduplicated: true });
+          return;
+        } catch {
+          // stale index entry — fall through and write a fresh file
+          index.delete(hash);
+        }
       }
 
+      const name = `${base}-${hash.slice(0, 10)}.${extension}`;
+      await fs.writeFile(path.join(dir, name), stored);
+      index.set(hash, name);
       res.json({ url: `/uploads/${name}` });
     } catch (err) {
       res.status(500).json({ error: errorMessage(err) });

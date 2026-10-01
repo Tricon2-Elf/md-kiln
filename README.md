@@ -191,7 +191,7 @@ What it does:
 - **Posts and pages** — list, create, edit, and delete; posts use the tag keys from `config.json`, pages are written to `content/`.
 - **Navigation menu** — edit the top-bar links: text links and SVG/icon links (local path or remote URL), with add, remove, and reorder. Saving updates `nav.links` in `config.json` and rebuilds the site.
 - **WYSIWYG markdown editor** — a rich-text surface with a formatting toolbar, plus a **Markdown** mode with a live preview. Content is always stored as Markdown.
-- **Images** — upload images (PNG, JPEG, GIF, WebP, AVIF) and insert them, or paste an external URL. Uploads are written to `content/public/uploads/` and served from `/uploads/...`.
+- **Images** — upload images (PNG, JPEG, GIF, WebP, AVIF, and SVG for nav icons) and insert them, or paste an external URL. Uploads are written to `content/public/uploads/` and served from `/uploads/...`. Identical files are deduplicated by content hash — re-uploading the same bytes reuses the existing file instead of creating a copy.
 - **Live rebuilds** — saved files are picked up by the file watcher, so the static site rebuilds automatically.
 
 Security: credentials are compared in constant time, login attempts are rate-limited, the session is a signed `HttpOnly`, `SameSite=Strict` cookie scoped to `/admin`, and mutating requests require a per-session CSRF token.
