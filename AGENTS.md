@@ -75,11 +75,11 @@ build/            (compiled JS run by Node)
 
 Runtime (not part of the static build):
 
-| URL            | Description                                            |
-| -------------- | ------------------------------------------------------ |
-| `/admin`        | Admin portal shell (enabled by env credentials)        |
-| `/admin/assets` | Admin client JS/CSS (`assets/admin/`)                  |
-| `/admin/api/*`  | Admin JSON API (session cookie + CSRF on mutations)    |
+| URL             | Description                                         |
+| --------------- | --------------------------------------------------- |
+| `/admin`        | Admin portal shell (enabled by env credentials)     |
+| `/admin/assets` | Admin client JS/CSS (`assets/admin/`)               |
+| `/admin/api/*`  | Admin JSON API (session cookie + CSRF on mutations) |
 
 Do not add per-route hardcoding (e.g. a dedicated `/about` route). Content pages are discovered from `content/`.
 

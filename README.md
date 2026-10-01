@@ -198,22 +198,22 @@ Security: credentials are compared in constant time, login attempts are rate-lim
 
 ## Environment variables
 
-| Variable              | Default                  | Description                                                     |
-| --------------------- | ------------------------ | --------------------------------------------------------------- |
-| `PORT`                | `3000`                   | Server port                                                     |
-| `CONFIG_PATH`         | `./config.json`          | Path to config file                                             |
-| `POSTS_DIR`           | `./content/posts`        | News posts directory                                            |
-| `CONTENT_DIR`         | `./content`              | Content root (pages, posts, public assets)                      |
-| `OUTPUT_DIR`          | `./dist`                 | Build output (HTML, CSS, JS, cached icons)                      |
-| `PUBLIC_DIR`          | `./content/public`       | User-uploaded static assets (logos, images)                     |
-| `MINIFY`              | enabled                  | Set to `false` to disable HTML minification                     |
-| `NAV_ICONS_REFRESH`   | `false`                  | Set to `true` to re-download remote nav SVGs                    |
-| `SITE_URL`            | `config.site.url`        | Override site URL for RSS/sitemap                               |
-| `ADMIN_USERNAME`      | (unset)                  | Admin portal username; unset disables `/admin`                  |
-| `ADMIN_PASSWORD`      | (unset)                  | Admin portal password; unset disables `/admin`                  |
-| `ADMIN_SESSION_SECRET`| derived from credentials | Optional secret for signing admin sessions across restarts      |
-| `DOMAIN`              | (Docker) empty → `:3000` | Public hostname for HTTPS in Docker; leave empty for local HTTP |
-| `CHOKIDAR_USEPOLLING` | `false`                  | Set to `true` in Docker so bind-mounted edits trigger rebuilds  |
+| Variable               | Default                  | Description                                                     |
+| ---------------------- | ------------------------ | --------------------------------------------------------------- |
+| `PORT`                 | `3000`                   | Server port                                                     |
+| `CONFIG_PATH`          | `./config.json`          | Path to config file                                             |
+| `POSTS_DIR`            | `./content/posts`        | News posts directory                                            |
+| `CONTENT_DIR`          | `./content`              | Content root (pages, posts, public assets)                      |
+| `OUTPUT_DIR`           | `./dist`                 | Build output (HTML, CSS, JS, cached icons)                      |
+| `PUBLIC_DIR`           | `./content/public`       | User-uploaded static assets (logos, images)                     |
+| `MINIFY`               | enabled                  | Set to `false` to disable HTML minification                     |
+| `NAV_ICONS_REFRESH`    | `false`                  | Set to `true` to re-download remote nav SVGs                    |
+| `SITE_URL`             | `config.site.url`        | Override site URL for RSS/sitemap                               |
+| `ADMIN_USERNAME`       | (unset)                  | Admin portal username; unset disables `/admin`                  |
+| `ADMIN_PASSWORD`       | (unset)                  | Admin portal password; unset disables `/admin`                  |
+| `ADMIN_SESSION_SECRET` | derived from credentials | Optional secret for signing admin sessions across restarts      |
+| `DOMAIN`               | (Docker) empty → `:3000` | Public hostname for HTTPS in Docker; leave empty for local HTTP |
+| `CHOKIDAR_USEPOLLING`  | `false`                  | Set to `true` in Docker so bind-mounted edits trigger rebuilds  |
 
 ## Development note
 
