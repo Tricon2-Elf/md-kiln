@@ -318,8 +318,9 @@ a {
   flex: 1;
   font: inherit;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   padding: 0.45rem 0.5rem;
+  white-space: nowrap;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -790,6 +791,64 @@ a {
 
 .toast--success {
   background: var(--online);
+}
+
+.sidebar__actions .btn + .btn {
+  margin-top: 0.5rem;
+}
+
+/* Navigation menu editor */
+.nav-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.nav-row__head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.nav-row__index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.nav-row__type {
+  width: 7rem;
+  flex: 0 0 auto;
+}
+
+.nav-row__controls {
+  margin-left: auto;
+  display: flex;
+  gap: 0.35rem;
+}
+
+.nav-row__fields {
+  grid-template-columns: 1fr 1fr;
+}
+
+.nav-icon-preview {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel-alt);
 }
 
 /* Responsive */

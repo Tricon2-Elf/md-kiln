@@ -14,9 +14,18 @@
     "pageTitle": "News",
     "defaultTag": "news",
     "tags": {
-      "news": { "label": "News", "color": "seagreen" },
-      "guide": { "label": "Guide", "color": "blueviolet" },
-      "update": { "label": "Update", "color": "seagreen" }
+      "news": {
+        "label": "News",
+        "color": "seagreen"
+      },
+      "guide": {
+        "label": "Guide",
+        "color": "blueviolet"
+      },
+      "update": {
+        "label": "Update",
+        "color": "seagreen"
+      }
     }
   },
   "theme": {
@@ -28,13 +37,21 @@
   },
   "nav": {
     "links": [
-      { "type": "text", "label": "Home", "href": "/" },
+      {
+        "type": "text",
+        "label": "Homeasdf",
+        "href": "/"
+      },
       {
         "type": "text",
         "label": "Getting Started",
         "href": "/getting-started"
       },
-      { "type": "text", "label": "About", "href": "/about" },
+      {
+        "type": "text",
+        "label": "About",
+        "href": "/about"
+      },
       {
         "type": "icon",
         "label": "Github",

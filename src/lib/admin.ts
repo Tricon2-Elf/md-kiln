@@ -20,6 +20,7 @@ import {
   writeItem,
   type AdminKind,
 } from "./admin-content";
+import { AdminConfigError, readNavLinks, updateNavLinks } from "./admin-config";
 import {
   clearLoginFailures,
   createSession,
@@ -40,6 +41,7 @@ const ALLOWED_IMAGE_TYPES: Record<string, string> = {
   "image/gif": "gif",
   "image/webp": "webp",
   "image/avif": "avif",
+  "image/svg+xml": "svg",
 };
 
 const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
@@ -56,6 +58,17 @@ function sanitizeBaseName(name: string): string {
     .replace(/^-+|-+$/g, "")
     .slice(0, 60);
   return base || "image";
+}
+
+/** Best-effort hardening for uploaded SVGs used as nav icons. */
+function sanitizeSvg(svg: string): string {
+  return svg
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, "")
+    .replace(/<script\b[^>]*\/?>/gi, "")
+    .replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, "")
+    .replace(/\son[a-z]+\s*=\s*'[^']*'/gi, "")
+    .replace(/\son[a-z]+\s*=\s*[^\s>]+/gi, "")
+    .replace(/(href|xlink:href)\s*=\s*("|')\s*javascript:[^"']*("|')/gi, "");
 }
 
 // Content writes are picked up by the file watcher (src/lib/watch.ts), which
@@ -176,7 +189,18 @@ adminApiRouter.post(
       const name = `${base}-${Date.now().toString(36)}.${extension}`;
       const dir = path.join(PUBLIC_DIR, "uploads");
       await fs.mkdir(dir, { recursive: true });
-      await fs.writeFile(path.join(dir, name), buffer);
+      const target = path.join(dir, name);
+
+      if (extension === "svg") {
+        await fs.writeFile(
+          target,
+          sanitizeSvg(buffer.toString("utf8")),
+          "utf8",
+        );
+      } else {
+        await fs.writeFile(target, buffer);
+      }
+
       res.json({ url: `/uploads/${name}` });
     } catch (err) {
       res.status(500).json({ error: errorMessage(err) });
@@ -207,12 +231,10 @@ function registerKind(kind: AdminKind, base: string): void {
     try {
       const slug = req.params.slug ?? "";
       if (req.query.create === "true" && (await itemExists(kind, slug))) {
-        res
-          .status(409)
-          .json({
-            error: "An item with this slug already exists.",
-            exists: true,
-          });
+        res.status(409).json({
+          error: "An item with this slug already exists.",
+          exists: true,
+        });
         return;
       }
 
@@ -253,6 +275,32 @@ function registerKind(kind: AdminKind, base: string): void {
 
 registerKind("post", "posts");
 registerKind("page", "pages");
+
+adminApiRouter.get("/nav", requireAdmin, (_req: Request, res: Response) => {
+  try {
+    res.json({ links: readNavLinks() });
+  } catch (err) {
+    res.status(500).json({ error: errorMessage(err) });
+  }
+});
+
+adminApiRouter.put(
+  "/nav",
+  requireAdmin,
+  async (req: Request, res: Response) => {
+    try {
+      const body = (req.body ?? {}) as Record<string, unknown>;
+      const links = await updateNavLinks(body.links);
+      res.json({ ok: true, links });
+    } catch (err) {
+      if (err instanceof AdminConfigError) {
+        res.status(400).json({ error: err.message });
+        return;
+      }
+      res.status(500).json({ error: errorMessage(err) });
+    }
+  },
+);
 
 // Unknown admin API paths should answer with JSON, not the SPA shell.
 adminApiRouter.use((_req: Request, res: Response) => {

@@ -13,6 +13,7 @@
     defaultTag: "news",
     kind: "post",
     items: [],
+    navLinks: [],
     draft: null,
     mode: "rich",
     dirty: false,
@@ -117,7 +118,9 @@
   }
 
   function kindBase() {
-    return state.kind === "post" ? "posts" : "pages";
+    if (state.kind === "post") return "posts";
+    if (state.kind === "page") return "pages";
+    return "nav";
   }
 
   function todayIso() {
@@ -317,18 +320,20 @@
         selectKind("page");
       },
     });
-
-    var newBtn = h("button", {
-      class: "btn btn--primary btn--block",
-      text: "New post",
-      onclick: newItem,
+    var navTab = h("button", {
+      class: "tab",
+      text: "Navigation",
+      onclick: function () {
+        selectKind("nav");
+      },
     });
 
+    var actionsEl = h("div", { class: "sidebar__actions" });
     var listEl = h("ul", { class: "sidebar__list" });
 
     var sidebar = h("aside", { class: "sidebar" }, [
-      h("div", { class: "sidebar__tabs" }, [postTab, pageTab]),
-      h("div", { class: "sidebar__actions" }, [newBtn]),
+      h("div", { class: "sidebar__tabs" }, [postTab, pageTab, navTab]),
+      actionsEl,
       listEl,
     ]);
 
@@ -377,20 +382,60 @@
     state.refs = {
       postTab: postTab,
       pageTab: pageTab,
-      newBtn: newBtn,
+      navTab: navTab,
+      actionsEl: actionsEl,
       listEl: listEl,
       main: main,
     };
 
     updateKindChrome();
-    showEmptyState();
+
+    if (state.kind !== "nav") showEmptyState();
   }
 
   function updateKindChrome() {
     state.refs.postTab.classList.toggle("tab--active", state.kind === "post");
     state.refs.pageTab.classList.toggle("tab--active", state.kind === "page");
-    state.refs.newBtn.textContent =
-      state.kind === "post" ? "New post" : "New page";
+    state.refs.navTab.classList.toggle("tab--active", state.kind === "nav");
+    renderSidebarActions();
+  }
+
+  function renderSidebarActions() {
+    var host = state.refs.actionsEl;
+    clear(host);
+
+    if (state.kind === "nav") {
+      host.appendChild(
+        h("button", {
+          class: "btn btn--primary btn--block",
+          type: "button",
+          text: "Add text link",
+          onclick: function () {
+            addNavLink("text");
+          },
+        }),
+      );
+      host.appendChild(
+        h("button", {
+          class: "btn btn--block",
+          type: "button",
+          text: "Add icon link",
+          onclick: function () {
+            addNavLink("icon");
+          },
+        }),
+      );
+      return;
+    }
+
+    host.appendChild(
+      h("button", {
+        class: "btn btn--primary btn--block",
+        type: "button",
+        text: state.kind === "post" ? "New post" : "New page",
+        onclick: newItem,
+      }),
+    );
   }
 
   function showEmptyState() {
@@ -421,12 +466,26 @@
     if (!confirmDiscard()) return;
     state.kind = kind;
     state.dirty = false;
+    state.editor = null;
+    state.draft = null;
     updateKindChrome();
-    showEmptyState();
+    if (kind !== "nav") showEmptyState();
     loadList();
   }
 
   function loadList() {
+    if (state.kind === "nav") {
+      return api("GET", "/nav")
+        .then(function (data) {
+          state.navLinks = (data.links || []).map(normalizeNavLink);
+          renderList();
+          renderNavEditor();
+        })
+        .catch(function (err) {
+          toast(err.message, "error");
+        });
+    }
+
     return api("GET", "/" + kindBase())
       .then(function (data) {
         state.items = data.items || [];
@@ -438,6 +497,11 @@
   }
 
   function renderList() {
+    if (state.kind === "nav") {
+      renderNavList();
+      return;
+    }
+
     var listEl = state.refs.listEl;
     clear(listEl);
 
@@ -491,6 +555,322 @@
         ),
       );
     });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Navigation (config.json → nav.links)
+  // ---------------------------------------------------------------------------
+
+  function normalizeNavLink(link) {
+    return {
+      type: link && link.type === "icon" ? "icon" : "text",
+      label: (link && link.label) || "",
+      href: (link && link.href) || "",
+      icon: (link && link.icon) || "",
+    };
+  }
+
+  function renderNavList() {
+    var listEl = state.refs.listEl;
+    clear(listEl);
+
+    if (!state.navLinks.length) {
+      listEl.appendChild(
+        h("li", { class: "sidebar__empty", text: "No menu links yet." }),
+      );
+      return;
+    }
+
+    state.navLinks.forEach(function (link, index) {
+      listEl.appendChild(
+        h(
+          "li",
+          {},
+          h(
+            "button",
+            {
+              class: "item",
+              type: "button",
+              onclick: function () {
+                focusNavRow(index);
+              },
+            },
+            [
+              h("div", {
+                class: "item__title",
+                text: link.label || "(no label)",
+              }),
+              h("div", { class: "item__meta" }, [
+                h("span", { class: "item__dot" }),
+                h("span", { text: link.type === "icon" ? "Icon" : "Text" }),
+                link.href ? h("span", { text: link.href }) : null,
+              ]),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  function focusNavRow(index) {
+    var row = document.getElementById("nav-row-" + index);
+    if (!row) return;
+    row.scrollIntoView({ block: "center" });
+    var input = row.querySelector("input");
+    if (input) input.focus();
+  }
+
+  function addNavLink(type) {
+    state.navLinks.push({ type: type, label: "", href: "", icon: "" });
+    markDirty();
+    renderList();
+    renderNavEditor();
+    focusNavRow(state.navLinks.length - 1);
+  }
+
+  function moveNavLink(index, delta) {
+    var target = index + delta;
+    if (target < 0 || target >= state.navLinks.length) return;
+    var link = state.navLinks.splice(index, 1)[0];
+    state.navLinks.splice(target, 0, link);
+    markDirty();
+    renderList();
+    renderNavEditor();
+    focusNavRow(target);
+  }
+
+  function removeNavLink(index) {
+    state.navLinks.splice(index, 1);
+    markDirty();
+    renderList();
+    renderNavEditor();
+  }
+
+  function navRow(link, index) {
+    var typeSelect = h(
+      "select",
+      {
+        class: "field__select nav-row__type",
+        onchange: function () {
+          link.type = typeSelect.value;
+          markDirty();
+          renderNavEditor();
+        },
+      },
+      [
+        h("option", {
+          value: "text",
+          text: "Text",
+          selected: link.type === "text",
+        }),
+        h("option", {
+          value: "icon",
+          text: "Icon",
+          selected: link.type === "icon",
+        }),
+      ],
+    );
+
+    var labelInput = h("input", {
+      class: "field__input",
+      type: "text",
+      value: link.label,
+      placeholder: "Label",
+      oninput: function () {
+        link.label = labelInput.value;
+        markDirty();
+      },
+    });
+
+    var hrefInput = h("input", {
+      class: "field__input",
+      type: "text",
+      value: link.href,
+      placeholder: "/about or https://example.com",
+      oninput: function () {
+        link.href = hrefInput.value;
+        markDirty();
+      },
+    });
+
+    var fields = [field("Label", labelInput), field("Link", hrefInput)];
+
+    if (link.type === "icon") {
+      var preview = h("img", {
+        class: "nav-icon-preview",
+        alt: "",
+        src: link.icon || "",
+      });
+      preview.hidden = !link.icon;
+
+      var updatePreview = function () {
+        preview.src = link.icon;
+        preview.hidden = !link.icon;
+      };
+
+      var iconInput = h("input", {
+        class: "field__input",
+        type: "text",
+        value: link.icon,
+        placeholder: "/img/icon.svg or https://example.com/icon.svg",
+        oninput: function () {
+          link.icon = iconInput.value;
+          markDirty();
+          updatePreview();
+        },
+      });
+
+      fields.push(
+        wide(
+          field(
+            "Icon (SVG)",
+            h("div", { class: "image-row" }, [
+              iconInput,
+              h("button", {
+                class: "btn",
+                type: "button",
+                text: "Upload SVG",
+                onclick: function () {
+                  pickIcon().then(function (url) {
+                    if (!url) return;
+                    link.icon = url;
+                    iconInput.value = url;
+                    updatePreview();
+                    markDirty();
+                  });
+                },
+              }),
+              preview,
+            ]),
+          ),
+        ),
+      );
+    }
+
+    var controls = h("div", { class: "nav-row__controls" }, [
+      h("button", {
+        class: "btn btn--ghost",
+        type: "button",
+        title: "Move up",
+        text: "\u2191",
+        disabled: index === 0,
+        onclick: function () {
+          moveNavLink(index, -1);
+        },
+      }),
+      h("button", {
+        class: "btn btn--ghost",
+        type: "button",
+        title: "Move down",
+        text: "\u2193",
+        disabled: index === state.navLinks.length - 1,
+        onclick: function () {
+          moveNavLink(index, 1);
+        },
+      }),
+      h("button", {
+        class: "btn btn--danger",
+        type: "button",
+        text: "Remove",
+        onclick: function () {
+          removeNavLink(index);
+        },
+      }),
+    ]);
+
+    return h("div", { class: "panel nav-row", id: "nav-row-" + index }, [
+      h("div", { class: "nav-row__head" }, [
+        h("span", { class: "nav-row__index", text: String(index + 1) }),
+        typeSelect,
+        controls,
+      ]),
+      h("div", { class: "meta-grid nav-row__fields" }, fields),
+    ]);
+  }
+
+  function renderNavEditor() {
+    var refs = state.refs;
+    clear(refs.main);
+    state.editor = null;
+    state.draft = null;
+
+    var rows = h("div", { class: "nav-rows" });
+    if (state.navLinks.length) {
+      state.navLinks.forEach(function (link, index) {
+        rows.appendChild(navRow(link, index));
+      });
+    } else {
+      rows.appendChild(
+        h("p", {
+          class: "field__hint",
+          text: "No links yet. Use “Add text link” or “Add icon link” to create one.",
+        }),
+      );
+    }
+
+    var editor = h("section", { class: "editor" }, [
+      h("div", { class: "editor__top" }, [
+        h("h2", { class: "editor__heading", text: "Navigation menu" }),
+        h("div", { class: "editor__actions" }, [
+          h("button", {
+            class: "btn btn--primary",
+            type: "button",
+            text: "Save navigation",
+            onclick: saveNav,
+          }),
+        ]),
+      ]),
+      h("p", {
+        class: "field__hint",
+        text: "These links appear in the top bar. Text links show a label; icon links show an SVG from a local path or a remote URL. Saving updates config.json and rebuilds the site.",
+      }),
+      rows,
+    ]);
+
+    refs.main.appendChild(editor);
+  }
+
+  function saveNav() {
+    var links = state.navLinks.map(function (link) {
+      var out = {
+        type: link.type,
+        label: (link.label || "").trim(),
+        href: (link.href || "").trim(),
+      };
+      if (link.type === "icon") out.icon = (link.icon || "").trim();
+      return out;
+    });
+
+    for (var i = 0; i < links.length; i++) {
+      if (!links[i].label) {
+        toast("Link " + (i + 1) + ": a label is required.", "error");
+        return;
+      }
+      if (!links[i].href) {
+        toast("Link " + (i + 1) + ": a link URL is required.", "error");
+        return;
+      }
+      if (links[i].type === "icon" && !links[i].icon) {
+        toast("Link " + (i + 1) + ": an icon is required.", "error");
+        return;
+      }
+    }
+
+    api("PUT", "/nav", { links: links })
+      .then(function (data) {
+        state.navLinks = (data.links || []).map(normalizeNavLink);
+        state.dirty = false;
+        renderList();
+        renderNavEditor();
+        toast("Navigation saved.", "success");
+      })
+      .catch(function (err) {
+        toast(err.message, "error");
+      });
+  }
+
+  function pickIcon() {
+    return pickFile("image/svg+xml,.svg");
   }
 
   // ---------------------------------------------------------------------------
@@ -933,7 +1313,8 @@
       state.draft.markdown = source;
       markDirty();
       renderMarkdown(source).then(function (html) {
-        if (state.editor) state.editor.surface.innerHTML = sanitizeEditorHtml(html);
+        if (state.editor)
+          state.editor.surface.innerHTML = sanitizeEditorHtml(html);
       });
     }
 
@@ -1119,11 +1500,11 @@
   // Image upload
   // ---------------------------------------------------------------------------
 
-  function pickImage() {
+  function pickFile(accept) {
     return new Promise(function (resolve) {
       var input = document.createElement("input");
       input.type = "file";
-      input.accept = "image/*";
+      input.accept = accept;
       input.addEventListener("change", function () {
         var file = input.files && input.files[0];
         if (!file) {
@@ -1152,6 +1533,10 @@
       });
       input.click();
     });
+  }
+
+  function pickImage() {
+    return pickFile("image/*");
   }
 
   function saveSelection() {
