@@ -93,6 +93,8 @@ const iconNavLinkSchema = z
   })
   .strict();
 
+export const navLinkSchema = z.union([textNavLinkSchema, iconNavLinkSchema]);
+
 const sidebarCtaSchema = z
   .object({
     enabled: z.boolean().optional(),
@@ -162,7 +164,7 @@ export const appConfigSchema = z
     posts: postsSchema,
     nav: z
       .object({
-        links: z.array(z.union([textNavLinkSchema, iconNavLinkSchema])),
+        links: z.array(navLinkSchema),
       })
       .passthrough(),
     theme: z
@@ -192,9 +194,7 @@ export type ThemeBackground = z.infer<typeof themeBackgroundSchema>;
 export type ThemeConfig = NonNullable<AppConfig["theme"]>;
 export type TextNavLink = z.infer<typeof textNavLinkSchema>;
 export type IconNavLink = z.infer<typeof iconNavLinkSchema>;
-export type NavLink =
-  | z.infer<typeof textNavLinkSchema>
-  | z.infer<typeof iconNavLinkSchema>;
+export type NavLink = z.infer<typeof navLinkSchema>;
 export type NavConfig = AppConfig["nav"];
 export type SidebarCtaConfig = z.infer<typeof sidebarCtaSchema>;
 export type SidebarStatusConfig = z.infer<typeof sidebarStatusSchema>;

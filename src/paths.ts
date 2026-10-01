@@ -1,4 +1,6 @@
 import path from "path";
+// Load `.env` before any environment-derived constants below are evaluated.
+import "./lib/env";
 
 /** Project root (parent of compiled `build/` output). */
 export const ROOT = path.join(__dirname, "..");

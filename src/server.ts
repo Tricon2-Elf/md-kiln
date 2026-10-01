@@ -6,7 +6,8 @@ import { runStatusPlugin } from "./plugins";
 import { loadConfig, getConfig } from "./lib/content";
 import { OUTPUT_DIR } from "./lib/build";
 import { runBuild, startWatcher } from "./lib/watch";
-import { PUBLIC_DIR } from "./paths";
+import { adminApiRouter, renderAdminShell } from "./lib/admin";
+import { ASSETS_DIR, PUBLIC_DIR } from "./paths";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -48,6 +49,14 @@ app.get("/api/status", async (_req, res) => {
     res.json({ online: false, metrics: {} });
   }
 });
+
+// Admin portal: JSON API, client assets, then the single-page shell.
+app.use("/admin/api", adminApiRouter);
+app.use(
+  "/admin/assets",
+  express.static(path.join(ASSETS_DIR, "admin"), { index: false }),
+);
+app.get(/^\/admin(?:\/.*)?$/, renderAdminShell);
 
 app.use(express.static(OUTPUT_DIR, { index: "index.html" }));
 app.use(express.static(PUBLIC_DIR));
